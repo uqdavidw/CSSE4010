@@ -1,0 +1,7 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../prac4.srcs/sources_1/imports/prac4/fsm_1.vhd" \
+"../../../../prac4.srcs/sim_1/new/test_fsm.vhd" \
+
+# Do not sort compile order
+nosort

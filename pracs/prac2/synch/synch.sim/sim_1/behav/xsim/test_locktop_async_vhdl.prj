@@ -1,0 +1,10 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../synch.srcs/sources_1/new/eight_register.vhd" \
+"../../../../synch.srcs/sources_1/new/lock_async.vhd" \
+"../../../../synch.srcs/sources_1/new/locktop_async.vhd" \
+"../../../../synch.srcs/sources_1/imports/synch/ssegDriver.vhd" \
+"../../../../synch.srcs/sim_1/new/test_locktop_async.vhd" \
+
+# Do not sort compile order
+nosort

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenRun Id="impl_1" LaunchPart="xc7a100tcsg324-3" LaunchTime="1534977079">
+  <File Type="PWROPT-DCP" Name="locktop_sync_pwropt.dcp"/>
+  <File Type="ROUTE-PWR" Name="locktop_sync_power_routed.rpt"/>
+  <File Type="PA-TCL" Name="locktop_sync.tcl"/>
+  <File Type="ROUTE-PWR-SUM" Name="locktop_sync_power_summary_routed.pb"/>
+  <File Type="REPORTS-TCL" Name="locktop_sync_reports.tcl"/>
+  <File Type="BG-DRC" Name="locktop_sync.drc"/>
+  <File Type="OPT-METHODOLOGY-DRC" Name="locktop_sync_methodology_drc_opted.rpt"/>
+  <File Type="INIT-TIMING" Name="locktop_sync_timing_summary_init.rpt"/>
+  <File Type="OPT-HWDEF" Name="locktop_sync.hwdef"/>
+  <File Type="OPT-DCP" Name="locktop_sync_opt.dcp"/>
+  <File Type="OPT-DRC" Name="locktop_sync_drc_opted.rpt"/>
+  <File Type="OPT-TIMING" Name="locktop_sync_timing_summary_opted.rpt"/>
+  <File Type="PWROPT-DRC" Name="locktop_sync_drc_pwropted.rpt"/>
+  <File Type="PWROPT-TIMING" Name="locktop_sync_timing_summary_pwropted.rpt"/>
+  <File Type="PLACE-DCP" Name="locktop_sync_placed.dcp"/>
+  <File Type="PLACE-IO" Name="locktop_sync_io_placed.rpt"/>
+  <File Type="PLACE-CLK" Name="locktop_sync_clock_utilization_placed.rpt"/>
+  <File Type="PLACE-UTIL" Name="locktop_sync_utilization_placed.rpt"/>
+  <File Type="PLACE-UTIL-PB" Name="locktop_sync_utilization_placed.pb"/>
+  <File Type="PLACE-CTRL" Name="locktop_sync_control_sets_placed.rpt"/>
+  <File Type="PLACE-SIMILARITY" Name="locktop_sync_incremental_reuse_placed.rpt"/>
+  <File Type="PLACE-PRE-SIMILARITY" Name="locktop_sync_incremental_reuse_pre_placed.rpt"/>
+  <File Type="PLACE-TIMING" Name="locktop_sync_timing_summary_placed.rpt"/>
+  <File Type="POSTPLACE-PWROPT-DCP" Name="locktop_sync_postplace_pwropt.dcp"/>
+  <File Type="POSTPLACE-PWROPT-TIMING" Name="locktop_sync_timing_summary_postplace_pwropted.rpt"/>
+  <File Type="PHYSOPT-DCP" Name="locktop_sync_physopt.dcp"/>
+  <File Type="PHYSOPT-DRC" Name="locktop_sync_drc_physopted.rpt"/>
+  <File Type="BG-BIT" Name="locktop_sync.bit"/>
+  <File Type="PHYSOPT-TIMING" Name="locktop_sync_timing_summary_physopted.rpt"/>
+  <File Type="ROUTE-ERROR-DCP" Name="locktop_sync_routed_error.dcp"/>
+  <File Type="ROUTE-DCP" Name="locktop_sync_routed.dcp"/>
+  <File Type="ROUTE-BLACKBOX-DCP" Name="locktop_sync_routed_bb.dcp"/>
+  <File Type="ROUTE-DRC" Name="locktop_sync_drc_routed.rpt"/>
+  <File Type="ROUTE-DRC-PB" Name="locktop_sync_drc_routed.pb"/>
+  <File Type="BITSTR-MSK" Name="locktop_sync.msk"/>
+  <File Type="ROUTE-DRC-RPX" Name="locktop_sync_drc_routed.rpx"/>
+  <File Type="BG-BGN" Name="locktop_sync.bgn"/>
+  <File Type="ROUTE-METHODOLOGY-DRC" Name="locktop_sync_methodology_drc_routed.rpt"/>
+  <File Type="BITSTR-RBT" Name="locktop_sync.rbt"/>
+  <File Type="ROUTE-METHODOLOGY-DRC-RPX" Name="locktop_sync_methodology_drc_routed.rpx"/>
+  <File Type="BG-BIN" Name="locktop_sync.bin"/>
+  <File Type="ROUTE-METHODOLOGY-DRC-PB" Name="locktop_sync_methodology_drc_routed.pb"/>
+  <File Type="ROUTE-PWR-RPX" Name="locktop_sync_power_routed.rpx"/>
+  <File Type="ROUTE-STATUS" Name="locktop_sync_route_status.rpt"/>
+  <File Type="ROUTE-STATUS-PB" Name="locktop_sync_route_status.pb"/>
+  <File Type="ROUTE-TIMINGSUMMARY" Name="locktop_sync_timing_summary_routed.rpt"/>
+  <File Type="ROUTE-TIMING-PB" Name="locktop_sync_timing_summary_routed.pb"/>
+  <File Type="ROUTE-TIMING-RPX" Name="locktop_sync_timing_summary_routed.rpx"/>
+  <File Type="ROUTE-SIMILARITY" Name="locktop_sync_incremental_reuse_routed.rpt"/>
+  <File Type="RDI-RDI" Name="locktop_sync.vdi"/>
+  <File Type="ROUTE-CLK" Name="locktop_sync_clock_utilization_routed.rpt"/>
+  <File Type="POSTROUTE-PHYSOPT-DCP" Name="locktop_sync_postroute_physopt.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-BLACKBOX-DCP" Name="locktop_sync_postroute_physopt_bb.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING" Name="locktop_sync_timing_summary_postroute_physopted.rpt"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING-PB" Name="locktop_sync_timing_summary_postroute_physopted.pb"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING-RPX" Name="locktop_sync_timing_summary_postroute_physopted.rpx"/>
+  <File Type="BITSTR-NKY" Name="locktop_sync.nky"/>
+  <File Type="BITSTR-BMM" Name="locktop_sync_bd.bmm"/>
+  <File Type="BITSTR-MMI" Name="locktop_sync.mmi"/>
+  <File Type="BITSTR-LTX" Name="debug_nets.ltx"/>
+  <File Type="BITSTR-LTX" Name="locktop_sync.ltx"/>
+  <File Type="BITSTR-SYSDEF" Name="locktop_sync.sysdef"/>
+  <File Type="WBT-USG" Name="usage_statistics_webtalk.html"/>
+  <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
+    <Filter Type="Srcs"/>
+    <File Path="$PSRCDIR/sources_1/new/eight_register.vhd">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/lock_sync.vhd">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/synch/ssegDriver.vhd">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PPRDIR/ssegDriver.vhd"/>
+        <Attr Name="ImportTime" Val="1533782392"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/locktop_sync.vhd">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/lock_async.vhd">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/locktop_async.vhd">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/Controller.vhd">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/synch/reg_simple.vhd">
+      <FileInfo>
+        <Attr Name="AutoDisabled" Val="1"/>
+        <Attr Name="ImportPath" Val="$PPRDIR/reg_simple.vhd"/>
+        <Attr Name="ImportTime" Val="1533782383"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <Config>
+      <Option Name="DesignMode" Val="RTL"/>
+      <Option Name="TopModule" Val="locktop_sync"/>
+    </Config>
+  </FileSet>
+  <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
+    <Filter Type="Constrs"/>
+    <Config>
+      <Option Name="ConstrsType" Val="XDC"/>
+    </Config>
+  </FileSet>
+  <Strategy Version="1" Minor="2">
+    <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2018"/>
+    <Step Id="init_design"/>
+    <Step Id="opt_design"/>
+    <Step Id="power_opt_design"/>
+    <Step Id="place_design"/>
+    <Step Id="post_place_power_opt_design"/>
+    <Step Id="phys_opt_design"/>
+    <Step Id="route_design"/>
+    <Step Id="post_route_phys_opt_design"/>
+    <Step Id="write_bitstream"/>
+  </Strategy>
+</GenRun>

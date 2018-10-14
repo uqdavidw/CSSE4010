@@ -1,0 +1,303 @@
+#-----------------------------------------------------------
+# Vivado v2018.1 (64-bit)
+# SW Build 2188600 on Wed Apr  4 18:40:38 MDT 2018
+# IP Build 2185939 on Wed Apr  4 20:55:05 MDT 2018
+# Start of session at: Thu Aug 23 08:30:16 2018
+# Process ID: 24336
+# Current directory: C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.runs/synth_1
+# Command line: vivado.exe -log locktop_sync.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source locktop_sync.tcl
+# Log file: C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.runs/synth_1/locktop_sync.vds
+# Journal file: C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.runs/synth_1\vivado.jou
+#-----------------------------------------------------------
+source locktop_sync.tcl -notrace
+Command: synth_design -top locktop_sync -part xc7a100tcsg324-3
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7a100t'
+INFO: Launching helper process for spawning children vivado processes
+INFO: Helper process launched with PID 23180 
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 342.957 ; gain = 99.984
+---------------------------------------------------------------------------------
+INFO: [Synth 8-638] synthesizing module 'locktop_sync' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/locktop_sync.vhd:46]
+INFO: [Synth 8-3491] module 'eight_register' declared at 'C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/eight_register.vhd:34' bound to instance 'register1' of component 'eight_register' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/locktop_sync.vhd:100]
+INFO: [Synth 8-638] synthesizing module 'eight_register' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/eight_register.vhd:41]
+INFO: [Synth 8-256] done synthesizing module 'eight_register' (1#1) [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/eight_register.vhd:41]
+INFO: [Synth 8-3491] module 'eight_register' declared at 'C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/eight_register.vhd:34' bound to instance 'register2' of component 'eight_register' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/locktop_sync.vhd:107]
+INFO: [Synth 8-3491] module 'ssegDriver' declared at 'C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/imports/synch/ssegDriver.vhd:7' bound to instance 'seven_segment_display' of component 'ssegDriver' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/locktop_sync.vhd:114]
+INFO: [Synth 8-638] synthesizing module 'ssegDriver' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/imports/synch/ssegDriver.vhd:25]
+INFO: [Synth 8-226] default block is never used [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/imports/synch/ssegDriver.vhd:59]
+INFO: [Synth 8-226] default block is never used [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/imports/synch/ssegDriver.vhd:113]
+INFO: [Synth 8-256] done synthesizing module 'ssegDriver' (2#1) [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/imports/synch/ssegDriver.vhd:25]
+INFO: [Synth 8-3491] module 'lock_sync' declared at 'C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:35' bound to instance 'control' of component 'lock_sync' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/locktop_sync.vhd:129]
+INFO: [Synth 8-638] synthesizing module 'lock_sync' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:47]
+WARNING: [Synth 8-614] signal 'correctCounter' is read in the process but is not in the sensitivity list [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:54]
+WARNING: [Synth 8-614] signal 'incorrectCounter' is read in the process but is not in the sensitivity list [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:54]
+WARNING: [Synth 8-6014] Unused sequential element locked_reg was removed.  [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:59]
+WARNING: [Synth 8-6014] Unused sequential element unlocked_reg was removed.  [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:60]
+INFO: [Synth 8-4471] merging register 'incorrectCounter_reg[7:0]' into 'correctCounter_reg[7:0]' [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:58]
+WARNING: [Synth 8-6014] Unused sequential element incorrectCounter_reg was removed.  [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:58]
+WARNING: [Synth 8-5787] Register correctCounter_reg in module lock_sync is clocked by two different clocks in the same process. This may cause simulation mismatches and synthesis errors. Consider using different process statements  [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:57]
+INFO: [Synth 8-256] done synthesizing module 'lock_sync' (3#1) [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/lock_sync.vhd:47]
+INFO: [Synth 8-256] done synthesizing module 'locktop_sync' (4#1) [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/new/locktop_sync.vhd:46]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:14 ; elapsed = 00:00:14 . Memory (MB): peak = 397.434 ; gain = 154.461
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 397.434 ; gain = 154.461
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tcsg324-3
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 397.434 ; gain = 154.461
+---------------------------------------------------------------------------------
+INFO: [Device 21-403] Loading part xc7a100tcsg324-3
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 397.434 ; gain = 154.461
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input      8 Bit       Adders := 2     
++---Registers : 
+	               32 Bit    Registers := 1     
+	                8 Bit    Registers := 6     
+	                4 Bit    Registers := 1     
+	                3 Bit    Registers := 2     
+	                1 Bit    Registers := 2     
++---Muxes : 
+	   8 Input      8 Bit        Muxes := 1     
+	   2 Input      8 Bit        Muxes := 2     
+	   8 Input      3 Bit        Muxes := 2     
+	   8 Input      1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Hierarchical Component Statistics 
+---------------------------------------------------------------------------------
+Hierarchical RTL Component report 
+Module eight_register 
+Detailed RTL Component Info : 
++---Registers : 
+	                8 Bit    Registers := 1     
+Module ssegDriver 
+Detailed RTL Component Info : 
++---Registers : 
+	               32 Bit    Registers := 1     
+	                8 Bit    Registers := 1     
+	                4 Bit    Registers := 1     
+	                3 Bit    Registers := 2     
++---Muxes : 
+	   8 Input      8 Bit        Muxes := 1     
+	   8 Input      3 Bit        Muxes := 2     
+	   8 Input      1 Bit        Muxes := 1     
+Module lock_sync 
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input      8 Bit       Adders := 2     
++---Registers : 
+	                8 Bit    Registers := 3     
+	                1 Bit    Registers := 2     
++---Muxes : 
+	   2 Input      8 Bit        Muxes := 2     
+---------------------------------------------------------------------------------
+Finished RTL Hierarchical Component Statistics
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+Warning: Parallel synthesis criteria is not met 
+WARNING: [Synth 8-6014] Unused sequential element seven_segment_display/digit_reg_reg was removed.  [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/imports/synch/ssegDriver.vhd:39]
+WARNING: [Synth 8-6014] Unused sequential element seven_segment_display/digitout_reg_reg was removed.  [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/imports/synch/ssegDriver.vhd:42]
+WARNING: [Synth 8-6014] Unused sequential element seven_segment_display/anode_reg_reg was removed.  [C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.srcs/sources_1/imports/synch/ssegDriver.vhd:43]
+INFO: [Synth 8-3886] merging instance 'control/correctCounter_reg[0]' (FD) to 'control/correctCounter_reg[1]'
+INFO: [Synth 8-3886] merging instance 'control/correctCounter_reg[1]' (FD) to 'control/correctCounter_reg[2]'
+INFO: [Synth 8-3886] merging instance 'control/correctCounter_reg[2]' (FD) to 'control/correctCounter_reg[3]'
+INFO: [Synth 8-3886] merging instance 'control/correctCounter_reg[3]' (FD) to 'control/correctCounter_reg[4]'
+INFO: [Synth 8-3886] merging instance 'control/correctCounter_reg[4]' (FD) to 'control/correctCounter_reg[5]'
+INFO: [Synth 8-3886] merging instance 'control/correctCounter_reg[5]' (FD) to 'control/correctCounter_reg[6]'
+INFO: [Synth 8-3886] merging instance 'control/correctCounter_reg[6]' (FD) to 'control/correctCounter_reg[7]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\control/correctCounter_reg[7] )
+WARNING: [Synth 8-3332] Sequential element (control/correctCounter_reg[7]) is unused and will be removed from module locktop_sync.
+WARNING: [Synth 8-3332] Sequential element (seven_segment_display/next_sel_reg[2]) is unused and will be removed from module locktop_sync.
+WARNING: [Synth 8-3332] Sequential element (seven_segment_display/next_sel_reg[1]) is unused and will be removed from module locktop_sync.
+WARNING: [Synth 8-3332] Sequential element (seven_segment_display/next_sel_reg[0]) is unused and will be removed from module locktop_sync.
+WARNING: [Synth 8-3332] Sequential element (seven_segment_display/digit_sel_reg[2]) is unused and will be removed from module locktop_sync.
+WARNING: [Synth 8-3332] Sequential element (seven_segment_display/digit_sel_reg[1]) is unused and will be removed from module locktop_sync.
+WARNING: [Synth 8-3332] Sequential element (seven_segment_display/digit_sel_reg[0]) is unused and will be removed from module locktop_sync.
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:23 ; elapsed = 00:00:25 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:23 ; elapsed = 00:00:25 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:23 ; elapsed = 00:00:25 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+
+Report Check Netlist: 
++------+------------------+-------+---------+-------+------------------+
+|      |Item              |Errors |Warnings |Status |Description       |
++------+------------------+-------+---------+-------+------------------+
+|1     |multi_driven_nets |      0|        0|Passed |Multi driven nets |
++------+------------------+-------+---------+-------+------------------+
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-----+------+
+|      |Cell |Count |
++------+-----+------+
+|1     |BUFG |     1|
+|2     |LUT1 |     2|
+|3     |LUT2 |     2|
+|4     |LUT3 |     2|
+|5     |LUT4 |    12|
+|6     |LUT5 |     4|
+|7     |LUT6 |     2|
+|8     |FDCE |     8|
+|9     |FDPE |     8|
+|10    |FDRE |    18|
+|11    |IBUF |    10|
+|12    |OBUF |    34|
++------+-----+------+
+
+Report Instance Areas: 
++------+------------+-----------------+------+
+|      |Instance    |Module           |Cells |
++------+------------+-----------------+------+
+|1     |top         |                 |   103|
+|2     |  control   |lock_sync        |    36|
+|3     |  register1 |eight_register   |    11|
+|4     |  register2 |eight_register_0 |    11|
++------+------------+-----------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 16 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+Synthesis Optimization Complete : Time (s): cpu = 00:00:25 ; elapsed = 00:00:28 . Memory (MB): peak = 549.406 ; gain = 306.434
+INFO: [Project 1-571] Translating synthesized netlist
+INFO: [Netlist 29-17] Analyzing 10 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+INFO: [Common 17-83] Releasing license: Synthesis
+32 Infos, 16 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:32 ; elapsed = 00:00:36 . Memory (MB): peak = 651.949 ; gain = 420.297
+INFO: [Common 17-1381] The checkpoint 'C:/Users/Sam Eadie/Documents/University Work/CSSE4010/pracs/prac2/synch/synch.runs/synth_1/locktop_sync.dcp' has been generated.
+INFO: [runtcl-4] Executing : report_utilization -file locktop_sync_utilization_synth.rpt -pb locktop_sync_utilization_synth.pb
+report_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.078 . Memory (MB): peak = 651.949 ; gain = 0.000
+INFO: [Common 17-206] Exiting Vivado at Thu Aug 23 08:31:01 2018...
