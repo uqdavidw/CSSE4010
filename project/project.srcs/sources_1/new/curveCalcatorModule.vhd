@@ -81,7 +81,7 @@ architecture Behavioral of curveCalculatorModule is
         Port ( 
             aclk : IN STD_LOGIC;
             s_axis_phase_tvalid : IN STD_LOGIC;
-            s_axis_phase_tdata : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+            s_axis_phase_tdata : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
             m_axis_dout_tvalid : OUT STD_LOGIC;
             m_axis_dout_tdata : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
@@ -103,7 +103,7 @@ architecture Behavioral of curveCalculatorModule is
     
     signal updateFlag : std_logic := '0';
     signal inValid : std_logic := '0';
-    signal inData : std_logic_vector(7 downto 0) := X"9A";
+    signal inData : std_logic_vector(15 downto 0) := X"0266";
     signal outValid : std_logic;
     signal outData : std_logic_vector(15 downto 0);
     signal currentMode : std_logic_vector(1 downto 0) := "00";
@@ -143,7 +143,7 @@ begin
                     --Waiting for update
                     when idle =>
                         if(updateFlag = '1') then
-                            inData <= X"9A";
+                            inData <= X"0266";
                             inValid <= '1';
                             state <= calculate; 
                         end if;
@@ -151,7 +151,8 @@ begin
                     --Waiting for cordic to calculate value    
                     when calculate => 
                         if(outValid = '1') then
-                            toSendRegister(15 downto 8) <= X"00";
+                            toSendRegister(15) <= not outData(15);
+                            toSendRegister(14 downto 8) <= outData(14 downto 8);
                             toSendRegister(7) <= not outData(7);
                             toSendRegister(6 downto 0) <= outData(6 downto 0);
                             toModuleRegister <= "100"; --BRAM module
@@ -170,8 +171,8 @@ begin
                     when send =>
                         if(ackLine <= '1') then 
                             inValid <= '0';
-                            if(inData = X"63") then
-                                inData <= X"9A";
+                            if(inData = X"058B") then
+                                inData <= X"0266";
                                 inValid <= '0';
                                 updateFlag <= '0';
                                 state <= idle;

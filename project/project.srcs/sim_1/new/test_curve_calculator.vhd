@@ -34,7 +34,6 @@ entity test_curve_calculator is
 end test_curve_calculator;
 
 architecture Behavioral of test_curve_calculator is
-
     component busController is 
         Port ( 
             requestLines : in std_logic_vector(7 downto 0);
@@ -110,7 +109,7 @@ begin
     trigger : process begin
         wait for 123ps;
         sendFlag1 <= '0';
-        wait for 200ns;
+        wait for 600ns;
         toSendRegister <= X"0000";
         wait for 1ns;
         sendFlag1 <= '1';

@@ -40,7 +40,7 @@ architecture Behavioral of test_cordic is
         Port ( 
             aclk : IN STD_LOGIC;
             s_axis_phase_tvalid : IN STD_LOGIC;
-            s_axis_phase_tdata : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+            s_axis_phase_tdata : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
             m_axis_dout_tvalid : OUT STD_LOGIC;
             m_axis_dout_tdata : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
@@ -48,7 +48,7 @@ architecture Behavioral of test_cordic is
     
     signal clk : std_logic := '0';
     signal inValid : std_logic := '1';
-    signal inData : std_logic_vector(7 downto 0) := X"9A";
+    signal inData : std_logic_vector(15 downto 0) := X"0266";
     signal outValid : std_logic;
     signal cosOut : std_logic_vector(7 downto 0);
     signal sinOut : std_logic_vector(7 downto 0);
@@ -74,8 +74,8 @@ begin
     process(outValid) begin
         if rising_edge(outValid) then
             inValid <= '0';
-            if(inData = X"63") then 
-                inData <= X"9A";
+            if(inData = X"058B") then 
+                inData <= X"0266";
             else
                 inData <= inData + '1';
             end if;
