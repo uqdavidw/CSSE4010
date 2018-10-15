@@ -30,15 +30,17 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity keypadModule is
     Port (
+        clk : in std_logic;
         row : in std_logic_vector(3 downto 0);
         col : out std_logic_vector(3 downto 0);
-        clk : in std_logic;
-        senderHandshake : inout std_logic;
-        receiverHandshake : inout std_logic;
-        toModuleAddress : inout std_logic_vector(2 downto 0);
-        fromModuleAddress : inout std_logic_vector(2 downto 0);
-        data : inout std_logic_vector(15 downto 0)
-        
+        --Interface with bus module
+        requestLine : out std_logic := '0';
+        grantLine : in std_logic;
+        dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+        toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+        fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+        readyLine : inout std_logic := 'Z';
+        ackLine : inout std_logic := 'Z'        
     );
 end keypadModule;
 
@@ -53,13 +55,47 @@ architecture Behavioral of keypadModule is
     );
     end component;
     
+    component busSlave is 
+        Port (
+            clk : in std_logic;
+            --Interface with bus module
+            requestLine : out std_logic := '0';
+            grantLine : in std_logic;
+            dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+            toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            readyLine : inout std_logic;
+            ackLine : inout std_logic;
+                
+            ownAddress : in std_logic_vector(2 downto 0);
+                
+            --Sending interface with module
+            toSendRegister : in std_logic_vector(15 downto 0);
+            toModuleRegister : in std_logic_vector(2 downto 0);
+            sendFlag : in std_logic;
+                
+            --Receiving interface with module
+            receivedRegister : out std_logic_vector(15 downto 0);
+            fromModuleRegister : out std_logic_vector(2 downto 0) := "000";
+            receivedFlag : out std_logic := '0';
+            ackFlag : in std_logic
+        );
+    end component;
+    
+    --Bus signals
+    signal toSendRegister : std_logic_vector(15 downto 0) := X"0000";
+    signal sendFlag : std_logic := '0';
+    signal receivedFlag : std_logic := '0';
+    signal ackFlag : std_logic := '0';
+    
+    --Keypad signals
     signal keypadValue : std_logic_vector(3 downto 0) := "0000";
     signal buttonDepressed : std_logic := '0';
-    signal enteredValue : std_logic_vector(8 downto 0) := X"00";
-    signal aValue : std_logic_vector(7 downto 0) := X"00";
-    signal bValue : std_logic_vector(7 downto 0) := X"00";
-    signal sendFlag : std_logic := '0';
-    signal onMode : std_logic := '0';
+    signal enteredValues : std_logic_vector(11 downto 0) := X"000";
+    signal mode : std_logic_vector(1 downto 0) := "00";
+
+    signal valueUpdated : std_logic := '0'; 
+    signal updateHandled : std_logic := '0';
 
     type sendingStates is (offMode, waitSend, waitTurn, write, waitACK);
     signal sendingState : sendingStates := offMode;
@@ -75,92 +111,86 @@ begin
         buttonDepressed => buttonDepressed
     );
     
-    --Handles keypad presses
+    busInterface : busSlave port map (
+        clk => clk,
+        requestLine => requestLine,
+        grantLine => grantLine,
+        dataLine => dataLine,
+        toModuleAddress => toModuleAddress,
+        fromModuleAddress => fromModuleAddress,
+        readyLine => readyLine,
+        ackLine => ackLine,
+        ownAddress => "010",
+        toSendRegister => toSendRegister,
+        toModuleRegister => "000",
+        sendFlag => sendFlag,
+        receivedFlag => receivedFlag,
+        ackFlag => ackFlag
+    );
+    
+    --Handles keypad presses stores in shift register
     keypadPresses : process (buttonDepressed) begin
         if falling_edge(buttonDepressed) then
-            
-            --Reset value
-            if(keypadValue = X"F") then 
-                enteredValue <= X"00";
-                aValue <= X"01";
-                bValue <= X"01";
-                sendFlag <= '1';
+            if(keypadValue = X"F" or keypadValue < X"C") then 
+                enteredValues(11 downto 8) <= enteredValues(7 downto 4);
+                enteredValues(7 downto 4) <= enteredValues(3 downto 0);
+                enteredValues(3 downto 0) <= keypadValue;
                 
-            --Set A value
-            elsif(keypadValue = X"A") then 
-                aValue <= std_logic_vector(unsigned(enteredValue(7 downto 4)) * 10 + unsigned(enteredValue(3 downto 0)));
-                enteredValue <= X"00";
-                sendFlag <= '1';
-                
-            --Set B value
-            elsif(keypadValue = X"B") then
-                bValue <= std_logic_vector(unsigned(enteredValue(7 downto 4)) * 10 + unsigned(enteredValue(3 downto 0)));
-                enteredValue <= X"00";
-                sendFlag <= '1';
-                
-            --Shift entered value in    
-            elsif(keypadValue < X"A") then 
-                enteredValue(7 downto 4) <= enteredValue(3 downto 0);
-                enteredValue(3 downto 0) <= keypadValue;
+                if(keypadValue > X"9") then 
+                    valueUpdated <= not valueUpdated;
+                end if;
             end if;
-        end if;
-    end process;
-
-    --Handles sending messages
-    sendValues : process(clk)
-    begin
-        if rising_edge(clk) then
-             if(onMode = '0') then 
-                sendingState <= offMode;
-             else
-                case sendingState is
-                
-                    --Not in a mode requiring keyboard
-                    when offMode =>
-                        sendingState <= waitSend;
-                        
-                    --Waiting for a message to send
-                    when waitSend =>
-                        if(sendFlag = '1') then
-                            senderHandshake <= '1';
-                            sendingState <= waitTurn; 
-                        end if;
-                        
-                    --Waiting for module's turn to send    
-                    when waitTurn => 
-                        if(senderHandshake <= '0') then
-                            sendingState <= write; 
-                        end if;
-                        
-                    --Writing value to send
-                    when write => 
-                        data(15 downto 8) <= aValue;
-                        data(7 downto 0) <= bValue;
-                        fromModuleAddress <= X"3";
-                        toModuleAddress <= X"1";
-                        senderHandshake <= '1';                         
-                        sendingState <= waitACK;
-                        
-                    --Waiting for acknowledgement of message received 
-                    when waitACK =>
-                        if(senderHandshake = '0') then
-                            sendingState <= waitSend; 
-                        end if; 
-                end case;
-             end if; 
         end if;
     end process;
     
-    --Handles receiving 
-    receiveMode : process(receiverHandshake) begin 
-        if rising_edge(receiverHandshake) then 
-            if(fromModuleAddress = X"1") then
-              if(toModuleAddress = X"3") then
-                onMode <= data(0);
-              end if; 
+    --Handles sending and receiving messages
+    process (clk) begin
+        if rising_edge(clk) then 
+            --Process shift register
+            if(updateHandled /= valueUpdated) then
+                --Reset value
+                if(enteredValues(3 downto 0) = X"F") then
+                    toSendRegister(15 downto 8) <= X"01";
+                    toSendRegister(7 downto 0)  <= X"01";
+                    sendFlag <= '1';
+                        
+                --Set A value
+                elsif(enteredValues(3 downto 0) = X"A") then 
+                    toSendRegister(15 downto 8) <= std_logic_vector(unsigned(enteredValues(11 downto 8)) * 10 + unsigned(enteredValues(7 downto 4)));
+                    sendFlag <= '1';
+                        
+                --Set B value
+                elsif(enteredValues(3 downto 0) = X"B") then
+                    toSendRegister(7 downto 0) <= std_logic_vector(unsigned(enteredValues(11 downto 8)) * 10 + unsigned(enteredValues(7 downto 4)));
+                    sendFlag <= '1';
+                end if;
+                
+                updateHandled <= '1';
+                
+                --Don't send if not in keypad mode
+                if(mode /= "10") then 
+                    sendFlag <= '0';
+                end if;
+                
+                updateHandled <= not updateHandled;
             end if;
-            receiverHandshake <= '0';
+            
+            --Message sent    
+            if(grantLine = '1') then
+                sendFlag <= '0';
+            end if;
+            
+            --Handle receiving messages
+            if(receivedFlag = '1') then 
+                if(fromModuleAddress = "000") then --Messages from user interface 
+                    mode <= dataLine(1 downto 0);
+                    ackFlag <= '1'; 
+                end if;
+            end if;
+            
+            if(readyLine = '0') then 
+                ackFlag <= '0';
+            end if; 
         end if;
     end process;
-
 end Behavioral;
