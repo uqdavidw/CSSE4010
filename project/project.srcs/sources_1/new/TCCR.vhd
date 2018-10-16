@@ -29,13 +29,16 @@ entity TCCR is
         clk : in std_logic;
         rst : in std_logic; 
         compareRegister : in std_logic_vector(7 downto 0);
-        interrupt : out std_logic
+        interrupt : out std_logic := '0'
      );
 end TCCR;
 
 architecture Behavioral of TCCR is
     signal count : std_logic_vector(7 downto 0) := X"00";
+    signal interruptFlag : std_logic;
 begin
+
+    interrupt <= interruptFlag;
 
     process(clk, rst) begin
         if(rst = '1') then 
@@ -44,10 +47,10 @@ begin
         elsif rising_edge(clk) then
             if(count = compareRegister) then
                 count <= X"00";
-                interrupt <= '1';
+                interruptFlag <= not interruptFlag;
             else
                 count <= count + "1";
-                interrupt <= '0';
+                --interrupt <= '0';
             end if;
         end if;
     end process;

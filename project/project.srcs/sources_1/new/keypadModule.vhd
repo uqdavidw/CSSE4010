@@ -182,9 +182,9 @@ begin
             
             --Handle receiving messages
             if(receivedFlag = '1') then 
+                ackFlag <= '1'; 
                 if(fromModuleAddress = "000") then --Messages from user interface 
                     mode <= dataLine(1 downto 0);
-                    ackFlag <= '1'; 
                 end if;
             end if;
             
