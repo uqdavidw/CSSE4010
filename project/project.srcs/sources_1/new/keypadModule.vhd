@@ -172,6 +172,11 @@ begin
                     sendFlag <= '0';
                 end if;
                 
+                --Dont send if values are inappropriate
+                if(enteredValues(11 downto 8) > X"9" or enteredValues(7 downto 4) > X"9") then
+                    sendFlag <= '0';
+                end if;
+                
                 updateHandled <= not updateHandled;
             end if;
             

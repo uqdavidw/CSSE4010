@@ -1,3 +1,5 @@
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets {pushButtons_IBUF[4]}]
+
 ## This file is a general .xdc for the Nexys4 rev B board
 ## To use it in a project:
 ## - uncomment the lines corresponding to used pins

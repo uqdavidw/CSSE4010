@@ -22,19 +22,10 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity busController is
     Port (
-        requestLines : in std_logic_vector(7 downto 0);
-        grantLines : out std_logic_vector(7 downto 0);
+        requestLines : in std_logic_vector(7 downto 0) := X"00";
+        grantLines : out std_logic_vector(7 downto 0) := X"00";
         clk : in std_logic;
         rst : in std_logic
     );

@@ -1,42 +1,33 @@
 ----------------------------------------------------------------------------------
--- Company: University of Queensland
--- Engineer: Sam Eadie
+-- Company: 
+-- Engineer: 
 -- 
--- Create Date:    4/10/2018
+-- Create Date: 17.10.2018 17:27:14
 -- Design Name: 
--- Module Name:    boardTop - Behavioral 
+-- Module Name: test_user_interface - Behavioral
 -- Project Name: 
 -- Target Devices: 
--- Tool versions: 
+-- Tool Versions: 
 -- Description: 
---
+-- 
 -- Dependencies: 
---
--- Revision: 
+-- 
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
---
+-- Additional Comments:
+-- 
 ----------------------------------------------------------------------------------
+
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity boardTop is
-    Port ( ssegAnode : out  STD_LOGIC_VECTOR (7 downto 0);
-           ssegCathode : out  STD_LOGIC_VECTOR (7 downto 0);
-           slideSwitches : in  STD_LOGIC_VECTOR (15 downto 0);
-           pushButtons : in  STD_LOGIC_VECTOR (4 downto 0);
-           LEDs : out  STD_LOGIC_VECTOR (15 downto 0);
-		   clk100mhz : in STD_LOGIC;
-		   JA : inout STD_LOGIC_VECTOR(7 downto 0);
-		   JC : out STD_LOGIC_VECTOR(7 downto 0);
-		   JD : out STD_LOGIC_VECTOR(7 downto 0)
-    );
-end boardTop;
+entity test_user_interface is
+--  Port ( );
+end test_user_interface;
 
-architecture Behavioral of boardTop is
-        
+architecture Behavioral of test_user_interface is
+    
     component busModule is
         Port (            
             --Regular bus lines
@@ -52,7 +43,7 @@ architecture Behavioral of boardTop is
             expressDataLine : inout std_logic_vector(15 downto 0)
         );
     end component;
-
+    
     component busController is
         Port (
             requestLines : in std_logic_vector(7 downto 0);
@@ -85,7 +76,7 @@ architecture Behavioral of boardTop is
             onLED : out std_logic := '1'
         );
     end component;
-        
+    
     component keypadModule is
         Port (
             clk : in std_logic;
@@ -103,36 +94,36 @@ architecture Behavioral of boardTop is
     end component;
 
     component busSlave is 
-    Port (
-            clk : in std_logic;
-            --Interface with bus module
-            requestLine : out std_logic := '0';
-            grantLine : in std_logic;
-            dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
-            toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-            fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-            readyLine : inout std_logic;
-            ackLine : inout std_logic;
-            
-            ownAddress : in std_logic_vector(2 downto 0);
-            
-            --Sending interface with module
-            toSendRegister : in std_logic_vector(15 downto 0);
-            toModuleRegister : in std_logic_vector(2 downto 0);
-            sendFlag : in std_logic;
-            
-            --Receiving interface with module
-            receivedRegister : out std_logic_vector(15 downto 0);
-            fromModuleRegister : out std_logic_vector(2 downto 0);
-            receivedFlag : out std_logic := '0';
-            ackFlag : in std_logic
-        );
+        Port (
+                clk : in std_logic;
+                --Interface with bus module
+                requestLine : out std_logic := '0';
+                grantLine : in std_logic;
+                dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+                toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+                fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+                readyLine : inout std_logic;
+                ackLine : inout std_logic;
+                
+                ownAddress : in std_logic_vector(2 downto 0);
+                
+                --Sending interface with module
+                toSendRegister : in std_logic_vector(15 downto 0);
+                toModuleRegister : in std_logic_vector(2 downto 0);
+                sendFlag : in std_logic;
+                
+                --Receiving interface with module
+                receivedRegister : out std_logic_vector(15 downto 0);
+                fromModuleRegister : out std_logic_vector(2 downto 0);
+                receivedFlag : out std_logic := '0';
+                ackFlag : in std_logic
+            );
     end component;
-    
+
     --General signals
     signal masterReset : std_logic;
     signal scaledClk : std_logic;
-    
+
     --Bus signals
     signal dataLine : std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
     signal toModuleAddress : std_logic_vector(2 downto 0) := "ZZZ";
@@ -146,9 +137,116 @@ architecture Behavioral of boardTop is
     --Arbiter Lines
     signal requestLines : std_logic_vector(7 downto 0);
     signal grantLines : std_logic_vector(7 downto 0);
-
+    
+    --Replicated signals 
+    signal clk100mhz : std_logic := '0';
+    signal slideSwitches : std_logic_vector(15 downto 0) := X"0000";
+    signal pushButtons : std_logic_vector(4 downto 0) := "00000"; 
+    signal LEDs : std_logic_vector(15 downto 0) := X"0000";
+    signal JA : std_logic_vector(7 downto 0) := X"FF";
+    
 begin
+    clk100mhz <= not clk100mhz after 10ps;
+    
+    process begin
+    
+        --Test mode changes
+        slideSwitches <= X"0001";
+        wait for 1000ps;
+        slideSwitches <= X"0002";
+        wait for 1000ps;
+        slideSwitches <= X"0003";
+        wait for 1000ps;
+        slideSwitches <= X"0000";
+        wait for 1000ps;
+        slideSwitches <= X"0001";
+        wait for 1000ps;
+        
+        --Test button presses
+        pushButtons <= "00001";
+        wait for 300ps;
+        pushButtons <= "00000";
+        wait for 300ps;
+        pushButtons <= "00001";
+        wait for 300ps;
+        pushButtons <= "00000";
+        wait for 300ps;
+        pushButtons <= "00010";
+        wait for 300ps;
+        pushButtons <= "00000";
+        wait for 300ps;
+        pushButtons <= "00100";
+        wait for 300ps;
+        pushButtons <= "00000";
+        wait for 300ps;
+        pushButtons <= "01000";
+        wait for 300ps;
+        pushButtons <= "00000";
+        wait for 300ps;
+        
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        
+        wait for 20ps;
+        
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        
+        wait for 20ps;                
+                        
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        
+        wait for 20ps;                
 
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        JA(7 downto 4) <= "1011";
+        wait for 20ps;
+        JA(7 downto 4) <= "1111";
+        wait for 60ps;
+        
+        wait for 20ps;                
+
+        
+    end process;
+    
         
     buss : busModule port map (
         dataLine => dataLine,
@@ -214,5 +312,6 @@ begin
         sendFlag => '0',
         ackFlag => '1'
     );
+    
 
 end Behavioral;
