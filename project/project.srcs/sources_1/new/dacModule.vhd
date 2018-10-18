@@ -102,7 +102,7 @@ architecture Behavioral of dacModule is
     
     --DAC signals
     signal rst : std_logic := '0';
-    signal enable : std_logic := '0';
+    signal enable : std_logic := '1';
     signal xFrequency : std_logic_vector(7 downto 0) := X"00";
     signal yFrequency : std_logic_vector(7 downto 0) := X"00";
     signal xOffset : std_logic_vector(7 downto 0) := X"00";
@@ -170,6 +170,10 @@ begin
                     --Mode change
                     when "00" =>
                         mode <= receivedRegister(1 downto 0);
+                        xFrequency <= X"01";
+                        yFrequency <= X"01";
+                        xOffset <= X"00";
+                        yOffset <= X"00";
                     
                     --Display on/off
                     when "01" =>
@@ -184,6 +188,8 @@ begin
                     when "11" =>
                         xOffset(6 downto 0) <= receivedRegister(13 downto 7);
                         yOffset(6 downto 0) <= receivedRegister(6 downto 0);
+                    
+                    when others => null;
                     
                 end case; 
             end if;

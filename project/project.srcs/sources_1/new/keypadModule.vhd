@@ -93,6 +93,9 @@ architecture Behavioral of keypadModule is
     signal buttonDepressed : std_logic := '0';
     signal enteredValues : std_logic_vector(11 downto 0) := X"000";
     signal mode : std_logic_vector(1 downto 0) := "00";
+    
+    signal lastA : std_logic_vector(7 downto 0) := X"01";
+    signal lastB : std_logic_vector(7 downto 0) := X"01";
 
     signal valueUpdated : std_logic := '0'; 
     signal updateHandled : std_logic := '0';
@@ -152,16 +155,24 @@ begin
                 if(enteredValues(3 downto 0) = X"F") then
                     toSendRegister(15 downto 8) <= X"01";
                     toSendRegister(7 downto 0)  <= X"01";
+                    lastA <= X"01";
+                    lastB <= X"01";
                     sendFlag <= '1';
                         
                 --Set A value
                 elsif(enteredValues(3 downto 0) = X"A") then 
                     toSendRegister(15 downto 8) <= std_logic_vector(unsigned(enteredValues(11 downto 8)) * 10 + unsigned(enteredValues(7 downto 4)));
+                    toSendRegister(7 downto 0) <= lastB;
+                    
+                    lastA <= std_logic_vector(unsigned(enteredValues(11 downto 8)) * 10 + unsigned(enteredValues(7 downto 4)));
                     sendFlag <= '1';
                         
                 --Set B value
                 elsif(enteredValues(3 downto 0) = X"B") then
+                    toSendRegister(15 downto 8) <= lastA;
                     toSendRegister(7 downto 0) <= std_logic_vector(unsigned(enteredValues(11 downto 8)) * 10 + unsigned(enteredValues(7 downto 4)));
+                    
+                    lastB <= std_logic_vector(unsigned(enteredValues(11 downto 8)) * 10 + unsigned(enteredValues(7 downto 4)));
                     sendFlag <= '1';
                 end if;
                 

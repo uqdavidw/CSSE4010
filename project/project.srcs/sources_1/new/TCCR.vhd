@@ -35,7 +35,7 @@ end TCCR;
 
 architecture Behavioral of TCCR is
     signal count : std_logic_vector(7 downto 0) := X"00";
-    signal interruptFlag : std_logic;
+    signal interruptFlag : std_logic := '0';
 begin
 
     interrupt <= interruptFlag;

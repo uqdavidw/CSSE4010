@@ -49,14 +49,14 @@ architecture Behavioral of dacChannel is
     component TCCR is 
         Port (
             clk : in std_logic;
-            rst : in std_logic; 
+            rst : in std_logic := '0'; 
             compareRegister : in std_logic_vector(7 downto 0);
             interrupt : out std_logic
         );
     end component;
     
     signal scaledClk : std_logic;
-    signal clkCounter : std_logic_vector := "00";
+    signal clkCounter : std_logic_vector(1 downto 0) := "00";
     
 begin
 
