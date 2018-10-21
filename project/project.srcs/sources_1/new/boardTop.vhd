@@ -24,13 +24,14 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity boardTop is
     Port ( 
-            ssegAnode : out  STD_LOGIC_VECTOR (7 downto 0);
+           ssegAnode : out  STD_LOGIC_VECTOR (7 downto 0);
            ssegCathode : out  STD_LOGIC_VECTOR (7 downto 0);
            slideSwitches : in  STD_LOGIC_VECTOR (15 downto 0);
            pushButtons : in  STD_LOGIC_VECTOR (4 downto 0);
            LEDs : out  STD_LOGIC_VECTOR (15 downto 0);
 		   clk100mhz : in STD_LOGIC;
 		   JA : inout STD_LOGIC_VECTOR(7 downto 0);
+		   JB : out STD_LOGIC_VECTOR(7 downto 0);		   
 		   JC : out STD_LOGIC_VECTOR(7 downto 0);
 		   JD : out STD_LOGIC_VECTOR(7 downto 0);
 		   
@@ -59,7 +60,9 @@ architecture Behavioral of boardTop is
     component busController is
         Port (
             requestLines : in std_logic_vector(7 downto 0);
-            grantLines : out std_logic_vector(7 downto 0);
+            grantLines : inout std_logic_vector(7 downto 0);
+            readyLine : inout std_logic := 'Z';
+            ackLine : inout std_logic := 'Z';            
             clk : in std_logic;
             rst : in std_logic
         );
@@ -190,7 +193,7 @@ architecture Behavioral of boardTop is
     end component;
     
     --General signals
-    signal masterReset : std_logic;
+    signal masterReset : std_logic := '0';
     
     --Bus signals
     signal dataLine : std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
@@ -207,12 +210,14 @@ architecture Behavioral of boardTop is
     signal grantLines : std_logic_vector(7 downto 0);
     
     --12.5MHz clock for DAC
-    signal slowClockCounter : std_logic_vector(2 downto 0) := "000";
+    signal slowClockCounter : std_logic_vector(8 downto 0) := "000000000";
     signal slowClock : std_logic := '0';
 
 begin
     
-    slowClock <= '1' when slowClockCounter > "011" else '0';
+    JB <= expressDataLine(15 downto 8);
+   
+    slowClock <= '1' when slowClockCounter > "011111111" else '0';
     
     process(clk100mhz) begin
         if rising_edge(clk100mhz) then 
@@ -231,6 +236,8 @@ begin
     arbiter : busController port map (
         requestLines => requestLines,
         grantLines => grantLines,
+        readyLine => readyLine,
+        ackLine => ackLine,
         clk => clk100mhz,
         rst => masterReset  
     );
@@ -297,7 +304,7 @@ begin
     );
     
     ram : ramModule port map (
-        clk => clk100mhz,
+        clk => slowClock,
         requestLine => requestLines(4),
         grantLine => grantLines(4),
         dataLine => dataLine,
@@ -305,10 +312,10 @@ begin
         fromModuleAddress => fromModuleAddress,
         readyLine => readyLine,
         ackLine => ackLine,
-        sinRequestToReceive => expressRequestLines(0),
-        cosRequestToReceive => expressRequestLines(1),
-        sinOutputReady => expressReadyLines(0),
-        cosOutputReady => expressReadyLines(1),
+        sinRequestToReceive => expressRequestLines(1),
+        cosRequestToReceive => expressRequestLines(0),
+        sinOutputReady => expressReadyLines(1),
+        cosOutputReady => expressReadyLines(0),
         sinOut => expressDataLine(15 downto 8),
         cosOut => expressDataLine(7 downto 0)
     );
@@ -332,5 +339,4 @@ begin
         yOutput => JD
     );
     
-
 end Behavioral;

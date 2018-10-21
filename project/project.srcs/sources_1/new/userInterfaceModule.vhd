@@ -267,10 +267,13 @@ begin
         end if;
     end process;
     
-    process(toModuleRegister) begin
+    process(toModuleAddress) begin
         sseg2(2 downto 0) <= toModuleRegister;
     end process;
     
+    process(fromModuleAddress) begin
+        sseg1(2 downto 0) <= fromModuleAddress;
+    end process;
     
     process(sendingState) begin
         case sendingState is 
@@ -381,25 +384,21 @@ begin
                 
                 --Sending new mode 
                 when sendMode =>
-                    if(grantLine <= '1') then 
+                    if(grantLine = '1') then 
                         sendFlag <= '0';
                         sendingState <= waitSend;
                     end if;
                     
                 --Waiting to send new mode    
                 when waitSend =>
-                    if(readyLine = '0') then 
+                    if(sendFlag <= '0') then --requestLine = '0') then  
                         --Finished sending mode to displayOut, accelerometer, keyboard, curve calculator
-                        if(toModuleRegister = "001") then 
+                        if(toModuleRegister = "100") then --change back to "001"
                             sendingState <= waiting;
                             
                         --Send mode to next module    
                         else
-                            if(toModuleRegister = "101") then 
-                                toModuleRegister <= "011"; --Accelerometer, skip BRAM
-                            else 
-                                toModuleRegister <= toModuleRegister - "1";
-                            end if;
+                            toModuleRegister <= toModuleRegister - "1";
                             sendFlag <= '1';
                             sendingState <= sendMode;
                         end if;
@@ -423,10 +422,12 @@ begin
                     yFrequency <= receivedRegister(6 downto 0);
                     frequencyFlag <= not frequencyFlag; 
                 end if;
-            else
-                ackFlag <= '0';
-            end if;
+            end if; 
             
+            if(readyLine = '0') then 
+                    ackFlag <= '0';
+                end if; 
+           
             --Buffer buttons
             leftButton <= buttons(3);
             rightButton <= buttons(0);

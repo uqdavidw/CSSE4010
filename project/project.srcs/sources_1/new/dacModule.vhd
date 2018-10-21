@@ -177,8 +177,13 @@ begin
                             yFrequency <= "00000001";
                         end if;
                         
-                        xOffset <= X"00";
-                        yOffset <= X"00";
+                        if(receivedRegister(1 downto 0) = "01") then 
+                            xOffset <= X"00";
+                            yOffset <= X"00";                            
+                        else
+                            xOffset <= X"40";
+                            yOffset <= X"40";                        
+                        end if;
                     
                     --Display on/off
                     when "01" =>

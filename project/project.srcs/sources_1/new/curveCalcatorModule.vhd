@@ -98,7 +98,7 @@ architecture Behavioral of curveCalculatorModule is
     signal receivedFlag : std_logic := '0';
     signal ackFlag : std_logic := '0';
     
-    type states is (idle, calculate, hold, send, repeat);
+    type states is (idle, calculate, hold, send, repeat, finishWait, finish, holdFinished);
     signal state : states := idle;
     
     signal updateFlag : std_logic := '1';
@@ -156,6 +156,13 @@ begin
                             toSendRegister(7) <= not outData(7);
                             toSendRegister(6 downto 0) <= outData(6 downto 0);
                             toModuleRegister <= "100"; --BRAM module
+                            
+                            --Ensure you dont send termination by accident (0x0000)
+                            if(outData(15) = '1' and outData(14 downto 8) = "0000000" and 
+                                outData(7) = '1' and outData(6 downto 0) = "0000000") then 
+                                toSendRegister <= "0000000100000001";
+                            end if;
+                            
                             sendFlag <= '1';
                             state <= hold; 
                         end if;
@@ -169,13 +176,13 @@ begin
                         
                     --Send value
                     when send =>
-                        if(ackLine <= '1') then 
+                        if(ackLine = '1') then 
                             inValid <= '0';
                             if(inData = X"058B") then
                                 inData <= X"0266";
                                 inValid <= '0';
-                                updateFlag <= '0';
-                                state <= idle;
+                                toSendRegister <= X"0000";
+                                state <= finishWait;
                             else
                                 inData <= inData + '1';
                                 state <= repeat;
@@ -184,10 +191,30 @@ begin
                         
                     --Repeat sending values
                     when repeat =>
-                        if(outValid = '0') then 
+                        if(ackLine = '0' and outValid = '0') then 
                             inValid <= '1';
                             state <= calculate;
                         end if;
+                    
+                    when finishWait =>
+                        if ackLine = '0' then
+                            sendFlag <= '1';
+                            state <= finish;
+                        end if;
+                    
+                    --Send terminating 0x00
+                    when finish =>
+                        if grantLine = '1' then 
+                            sendFlag <= '0';
+                            updateFlag <= '0';
+                            state <= holdFinished;
+                        end if;
+                    
+                    when holdFinished =>
+                        if outValid = '0' then 
+                            state <= idle;
+                        end if;       
+                                               
                     
                 end case;
              
@@ -202,14 +229,14 @@ begin
                                          
                          --Moving to a large circle mode
                          if(dataLine(1 downto 0) /= "01") then 
-                             updateFlag <= '1';
+                             --updateFlag <= '1';
                          end if;
                                          
                      --Currently drawing large circle
                      else                
                          --Moving to small circle mode
                          if(dataLine(1 downto 0) = "01") then
-                             updateFlag <= '1';
+                             --updateFlag <= '1';
                          end if;
                                              
                      end if;
@@ -217,7 +244,9 @@ begin
                      --Update mode
                      currentMode <= dataLine(1 downto 0);             
                  end if;                 
-             else 
+             end if; 
+             
+             if(readyLine = '0') then 
                 ackFlag <= '0';
              end if;   
              

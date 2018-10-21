@@ -25,7 +25,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity busController is
     Port (
         requestLines : in std_logic_vector(7 downto 0) := X"00";
-        grantLines : out std_logic_vector(7 downto 0) := X"00";
+        grantLines : inout std_logic_vector(7 downto 0) := X"00";
+        readyLine : in std_logic;
+        ackLine : in std_logic;
         clk : in std_logic;
         rst : in std_logic
     );
@@ -81,9 +83,11 @@ begin
                     end if;
                     
                 when waitSender =>
-                    if(requestLines(currentSender) = '0') then 
+                    if(requestLines(currentSender) = '0') then -- or grantLines(currentSender) = '0') then 
                         grantLines(currentSender) <= '0';
-                        state <= setSender;
+                        --if(ackLine /= '1') then
+                            state <= setSender;
+                        --end if;
                     end if;
             end case;
         end if;        

@@ -87,7 +87,7 @@ architecture Behavioral of ramModule is
            
     --Receiving interface with module
     signal receivedRegister : std_logic_vector(15 downto 0);
-    signal fromModuleRegister : std_logic_vector(2 downto 0) := "000";
+    signal fromModuleRegister : std_logic_vector(2 downto 0) := "111";
     signal receivedFlag : std_logic := '0';
     signal ackFlag : std_logic := '0';
     
@@ -103,7 +103,7 @@ architecture Behavioral of ramModule is
      signal cosAddress : std_logic_vector(9 downto 0) := "0000000000";
      signal cosIn : std_logic_vector(7 downto 0) := X"00";
      
-     type updateStates is (waiting, loading, loaded);
+     type updateStates is (waiting, loading, loaded, newMode, modeFinished);
      signal state : updateStates := waiting;
      
      type outputStates is (waiting, update);
@@ -126,6 +126,8 @@ begin
         toSendRegister => X"0000",
         toModuleRegister => "000",
         sendFlag => '0',
+        fromModuleRegister => fromModuleRegister,
+        receivedRegister => receivedRegister,
         receivedFlag => receivedFlag,
         ackFlag => ackFlag
     );
@@ -157,13 +159,53 @@ begin
                 --Waiting for value
                 when waiting =>
                     if(receivedFlag = '1') then 
-                        sinIn <= dataLine(15 downto 8);
-                        cosIn <= dataLine(7 downto 0);
-                        writeSinEnable <= "1";
-                        writeCosEnable <= "1";
-                        updatingFlag <= '1';
-                        state <= loading;
-                        messageCounter <= messageCounter + "1";
+                        if(fromModuleRegister = "000") then 
+                            ackFlag <= '1';
+                            if(updatingFlag = '0') then 
+                                sinAddress <= "0000000000";
+                                cosAddress <= "0000000000";
+                            end if;
+                            state <= newMode;
+                            
+                        elsif(fromModuleRegister = "001") then
+                            if(dataLine = X"0000") then
+                                ackFlag <= '1';
+                                sinAddress <= "0000000000";
+                                cosAddress <= "0000000000";
+                                writeSinEnable <= "0";
+                                writeCosEnable <= "0";
+                                updatingFlag <= '0';
+                                sinOutputReady <= '1';
+                                cosOutputReady <= '1';
+                                --messageCounter <= "0000000000";
+                                state <= newMode;
+                            else
+                                if(updatingFlag = '0') then 
+                                    sinAddress <= "0000000000";
+                                    cosAddress <= "0000000000";
+                                    messageCounter <= "0000000000";
+                                else 
+                                    messageCounter <= messageCounter + "1";
+                                end if;
+                                sinIn <= dataLine(15 downto 8);
+                                cosIn <= dataLine(7 downto 0);
+                                writeSinEnable <= "1";
+                                writeCosEnable <= "1";
+                                updatingFlag <= '1';
+                                state <= loading;
+                            end if;
+                        end if;
+                    end if;
+                    
+                when newMode =>
+                    if(readyLine = '0') then
+                        ackFlag <= '0';
+                        state <= modeFinished;
+                    end if;    
+                    
+                when modeFinished => 
+                    if receivedFlag /= '1' then 
+                        state <= waiting;
                     end if;
                     
                 --Loading value into BRAM    
@@ -175,25 +217,8 @@ begin
                 when loaded =>
                     if(receivedFlag = '0') then 
                         ackFlag <= '0';
-                        
-                        --LUT is "1100100101" long
-                        if(cosAddress = "1100100101") then 
-                            cosAddress <= "0000000000";
-                            updatingFlag <= '0';
-                            writeCosEnable <= "0";
-                            cosOutputReady <= '1';
-                        else
-                            cosAddress <= cosAddress + "1";
-                        end if;
-                                        
-                        if(sinAddress = "1100100101") then 
-                            sinAddress <= "0000000000";
-                            updatingFlag <= '0';
-                            writeSinEnable <= "0";
-                            sinOutputReady <= '1';
-                        else
-                            sinAddress <= sinAddress + "1";
-                        end if;
+                        cosAddress <= cosAddress + "1";
+                        sinAddress <= sinAddress + "1";
                         
                         state <= waiting;
                     end if;
@@ -210,7 +235,7 @@ begin
                         
                     when update =>
                         if(sinRequestToReceive = '0') then
-                            if(sinAddress = "1100100101") then 
+                            if(sinAddress >= messageCounter) then 
                                 sinAddress <= "0000000000";
                             else
                                 sinAddress <= sinAddress + "1";
@@ -231,7 +256,7 @@ begin
                         
                     when update =>
                         if(cosRequestToReceive = '0') then
-                            if(cosAddress = "1100100101") then 
+                            if(cosAddress >= messageCounter) then 
                                 cosAddress <= "0000000000";
                             else
                                 cosAddress <= cosAddress + "1";

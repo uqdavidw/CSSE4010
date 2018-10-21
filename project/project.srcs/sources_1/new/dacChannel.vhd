@@ -60,7 +60,7 @@ architecture Behavioral of dacChannel is
     
 begin
 
-    scaledClk <= '1' when clkCounter > X"01" else '0';
+    scaledClk <= '1' when clkCounter > "01" else '0';
 
     counter : TCCR port map (
         clk => scaledClk,
@@ -87,13 +87,13 @@ begin
                 when read =>
                     if(inputReady = '1') then 
                         --Change output, overflow detection
-                        if(input + offset < X"FF") then
+                        if(X"FF" - offset > input) then
                             output <= input + offset;
                         else
                             output <= X"FF";
                         end if;
                         
-                        if(enable /= '1') then
+                        if(enable = '0') then
                             output <= X"00";
                         end if;
                         

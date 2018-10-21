@@ -107,12 +107,15 @@ begin
                             
                     --Finished sending relinquish control
                     when finished =>
-                        dataLine <= "ZZZZZZZZZZZZZZZZ";
-                        toModuleAddress <= "ZZZ";
-                        fromModuleAddress <= "ZZZ";
-                        readyLine <= 'Z';
-                        requestLine <= '0';
-                        sendingState <= waitSend;
+                        if(ackLine = '0') then 
+                            dataLine <= "ZZZZZZZZZZZZZZZZ";
+                            toModuleAddress <= "ZZZ";
+                            fromModuleAddress <= "ZZZ";
+                            readyLine <= 'Z';
+                            requestLine <= '0';
+                            sendingState <= waitSend;
+                        end if;    
+                        
                    
                 end case;
              end if;
