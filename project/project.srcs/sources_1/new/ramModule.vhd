@@ -24,15 +24,6 @@ use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity ramModule is
     Port (
         clk : in std_logic;
@@ -46,8 +37,8 @@ entity ramModule is
         ackLine : inout std_logic := 'Z';
         
         --Interface with Express Bus
-        sinRequestToReceive : in std_logic := '0';
-        cosRequestToReceive : in std_logic := '0';
+        sinRequestToReceive : in std_logic := '1';
+        cosRequestToReceive : in std_logic := '1';
         sinOutputReady : out std_logic := '0';
         cosOutputReady : out std_logic := '0';
         sinOut : out std_logic_vector(7 downto 0) := X"00";

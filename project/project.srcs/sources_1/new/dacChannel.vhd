@@ -27,15 +27,15 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity dacChannel is
     Port (
-        clk : in std_logic;
-        rst : in std_logic; 
-        enable : in std_logic;
-        frequency : in std_logic_vector(7 downto 0);
-        offset : in std_logic_vector(7 downto 0);
-        input : in std_logic_vector(7 downto 0);
-        output : out std_logic_vector(7 downto 0);
-        requestToReceive : out std_logic;
-        inputReady : in std_logic
+        clk : in std_logic := '0';
+        rst : in std_logic := '0'; 
+        enable : in std_logic := '1';
+        frequency : in std_logic_vector(7 downto 0) := X"01";
+        offset : in std_logic_vector(7 downto 0) := X"00";
+        input : in std_logic_vector(7 downto 0) := X"00";
+        output : out std_logic_vector(7 downto 0) := X"00";
+        requestToReceive : out std_logic := '1';
+        inputReady : in std_logic := '0'
     );
 end dacChannel;
 
@@ -43,19 +43,19 @@ architecture Behavioral of dacChannel is
     type DMAstates is (request, read);
     signal dmaState : DMAstates := request;
     
-    signal interruptFSM : std_logic := '0';
     signal interrupt : std_logic := '0';
+    signal acknowledge : std_logic := '0';
 
     component TCCR is 
         Port (
-            clk : in std_logic;
+            clk : in std_logic := '0';
             rst : in std_logic := '0'; 
-            compareRegister : in std_logic_vector(7 downto 0);
-            interrupt : out std_logic
+            compareRegister : in std_logic_vector(7 downto 0) := X"00";
+            interrupt : out std_logic := '0'
         );
     end component;
     
-    signal scaledClk : std_logic;
+    signal scaledClk : std_logic := '0';
     signal clkCounter : std_logic_vector(1 downto 0) := "00";
     
 begin
@@ -70,16 +70,16 @@ begin
     );
     
     process(clk) begin
-        clkCounter <= clkCounter + "1";
         if(rst = '1') then 
             dmaState <= read;
             requestToReceive <= '0';
             clkCounter <= "00";   
-        else
+        elsif rising_edge(clk) then
+            clkCounter <= clkCounter + "1"; 
             case dmaState is
-                when request => 
-                    if(interruptFSM /= interrupt) then 
-                        interruptFSM <= interrupt;
+                when request =>
+                    if(interrupt /= acknowledge) then 
+                        acknowledge <= not acknowledge;
                         requestToReceive <= '1';
                         dmaState <= read;    
                     end if;
@@ -100,7 +100,7 @@ begin
                         requestToReceive <= '0';
                         dmaState <= request;
                     end if;
-            end case;
+            end case;    
         end if;
     end process;
 end Behavioral;

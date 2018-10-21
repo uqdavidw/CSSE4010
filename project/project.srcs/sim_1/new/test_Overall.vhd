@@ -1,50 +1,35 @@
 ----------------------------------------------------------------------------------
--- Company: University of Queensland
--- Engineer: Sam Eadie
+-- Company: 
+-- Engineer: 
 -- 
--- Create Date:    4/10/2018
+-- Create Date: 17.10.2018 17:27:14
 -- Design Name: 
--- Module Name:    boardTop - Behavioral 
+-- Module Name: test_Overall - Behavioral
 -- Project Name: 
 -- Target Devices: 
--- Tool versions: 
+-- Tool Versions: 
 -- Description: 
---
+-- 
 -- Dependencies: 
---
--- Revision: 
+-- 
+-- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: 
---
+-- Additional Comments:
+-- 
 ----------------------------------------------------------------------------------
+
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity boardTop is
-    Port ( 
-            ssegAnode : out  STD_LOGIC_VECTOR (7 downto 0);
-           ssegCathode : out  STD_LOGIC_VECTOR (7 downto 0);
-           slideSwitches : in  STD_LOGIC_VECTOR (15 downto 0);
-           pushButtons : in  STD_LOGIC_VECTOR (4 downto 0);
-           LEDs : out  STD_LOGIC_VECTOR (15 downto 0);
-		   clk100mhz : in STD_LOGIC;
-		   JA : inout STD_LOGIC_VECTOR(7 downto 0);
-		   JC : out STD_LOGIC_VECTOR(7 downto 0);
-		   JD : out STD_LOGIC_VECTOR(7 downto 0);
-		   
-		   --Accelometer
-		   aclMISO : in std_logic;
-		   aclMOSI : out std_logic;
-		   aclSCK : out std_logic;
-		   aclSS : out std_logic
-    );
-    
-end boardTop;
+entity test_Overall is
+--  Port ( );
+end test_Overall;
 
-architecture Behavioral of boardTop is
-            
+architecture Behavioral of test_Overall is
+                
     component busModule is
         Port (            
             --Regular bus lines
@@ -64,7 +49,7 @@ architecture Behavioral of boardTop is
             rst : in std_logic
         );
     end component;                
-            
+    
     component userInterfaceModule is
         Port (
             clk : in std_logic;
@@ -90,40 +75,40 @@ architecture Behavioral of boardTop is
     end component;
     
     component curveCalculatorModule is
-    Port ( 
-        clk : in std_logic;
-        --Interface with bus module
-        requestLine : out std_logic := '0';
-        grantLine : in std_logic;
-        dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
-        toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-        fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-        readyLine : inout std_logic := 'Z';
-        ackLine : inout std_logic := 'Z'
-    );
+        Port ( 
+            clk : in std_logic;
+            --Interface with bus module
+            requestLine : out std_logic := '0';
+            grantLine : in std_logic;
+            dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+            toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            readyLine : inout std_logic := 'Z';
+            ackLine : inout std_logic := 'Z'
+        );
     end component;    
     
     component keypadModule is
-    Port (
-        clk : in std_logic;
-        row : in std_logic_vector(3 downto 0);
-        col : out std_logic_vector(3 downto 0);
-        --Interface with bus module
-        requestLine : out std_logic := '0';
-        grantLine : in std_logic;
-        dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
-        toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-        fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-        readyLine : inout std_logic := 'Z';
-        ackLine : inout std_logic := 'Z'        
-    );
+        Port (
+            clk : in std_logic;
+            row : in std_logic_vector(3 downto 0);
+            col : out std_logic_vector(3 downto 0);
+            --Interface with bus module
+            requestLine : out std_logic := '0';
+            grantLine : in std_logic;
+            dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+            toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            readyLine : inout std_logic := 'Z';
+            ackLine : inout std_logic := 'Z'        
+        );
     end component;
     
     component accelerometerModule is
-    Port (
+        Port (
             clk : in std_logic;
             rst : in std_logic;
-    
+            
             --Interface with bus module
             requestLine : out std_logic := '0';
             grantLine : in std_logic;
@@ -138,59 +123,59 @@ architecture Behavioral of boardTop is
             MOSI        : out std_logic;
             MISO        : in  std_logic;
             SS          : out std_logic     
-    );
+        );
     end component;
     
     component ramModule is
-    Port (
-        clk : in std_logic;
-        --Interface with bus module
-        requestLine : out std_logic := '0';
-        grantLine : in std_logic;
-        dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
-        toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-        fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-        readyLine : inout std_logic := 'Z';
-        ackLine : inout std_logic := 'Z';
-        
-        --Interface with Express Bus
-        sinRequestToReceive : in std_logic := '1';
-        cosRequestToReceive : in std_logic := '1';
-        sinOutputReady : out std_logic := '0';
-        cosOutputReady : out std_logic := '0';
-        sinOut : out std_logic_vector(7 downto 0) := X"00";
-        cosOut : out std_logic_vector(7 downto 0) := X"00"
-    );
+        Port (
+            clk : in std_logic;
+            --Interface with bus module
+            requestLine : out std_logic := '0';
+            grantLine : in std_logic;
+            dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+            toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            readyLine : inout std_logic := 'Z';
+            ackLine : inout std_logic := 'Z';
+            
+            --Interface with Express Bus
+            sinRequestToReceive : in std_logic := '1';
+            cosRequestToReceive : in std_logic := '1';
+            sinOutputReady : out std_logic := '0';
+            cosOutputReady : out std_logic := '0';
+            sinOut : out std_logic_vector(7 downto 0) := X"00";
+            cosOut : out std_logic_vector(7 downto 0) := X"00"
+        );
     end component;
     
     component dacModule is
-    Port (
-        clk : in std_logic;
-        --Interface with bus module
-        requestLine : out std_logic := '0';
-        grantLine : in std_logic;
-        dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
-        toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-        fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
-        readyLine : inout std_logic := 'Z';
-        ackLine : inout std_logic := 'Z';       
-        
-        --Interface with DMA bus
-        xInput : in std_logic_vector(7 downto 0) := X"00";
-        yInput : in std_logic_vector(7 downto 0) := X"00";
-        xRequest : out std_logic := '1';
-        yRequest : out std_logic := '1';
-        xReady : in std_logic := '0';
-        yReady : in std_logic := '0';
-        
-        --Interface with PMOD headers
-        xOutput : out std_logic_vector(7 downto 0) := X"00";
-        yOutput : out std_logic_vector(7 downto 0) := X"00"
-    );
+        Port (
+            clk : in std_logic;
+            --Interface with bus module
+            requestLine : out std_logic := '0';
+            grantLine : in std_logic;
+            dataLine : inout std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
+            toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
+            readyLine : inout std_logic := 'Z';
+            ackLine : inout std_logic := 'Z';       
+            
+            --Interface with DMA bus
+            xInput : in std_logic_vector(7 downto 0) := X"00";
+            yInput : in std_logic_vector(7 downto 0) := X"00";
+            xRequest : out std_logic := '1';
+            yRequest : out std_logic := '1';
+            xReady : in std_logic := '0';
+            yReady : in std_logic := '0';
+            
+            --Interface with PMOD headers
+            xOutput : out std_logic_vector(7 downto 0) := X"00";
+            yOutput : out std_logic_vector(7 downto 0) := X"00"
+        );
     end component;
     
     --General signals
-    signal masterReset : std_logic;
+    signal masterReset : std_logic := '0';
     
     --Bus signals
     signal dataLine : std_logic_vector(15 downto 0) := "ZZZZZZZZZZZZZZZZ";
@@ -209,8 +194,27 @@ architecture Behavioral of boardTop is
     --12.5MHz clock for DAC
     signal slowClockCounter : std_logic_vector(2 downto 0) := "000";
     signal slowClock : std_logic := '0';
+    
+    --Replicated boardtop signals 
+    signal clk100mhz : std_logic := '0';
+    signal slideSwitches : std_logic_vector(15 downto 0) := X"0000";
+    signal pushButtons : std_logic_vector(4 downto 0) := "00000"; 
+    signal LEDs : std_logic_vector(15 downto 0) := X"0000";
+    signal ssegAnode : STD_LOGIC_VECTOR (7 downto 0) := X"00";
+    signal ssegCathode : STD_LOGIC_VECTOR (7 downto 0) := X"00";
+
+    signal JA : std_logic_vector(7 downto 0) := X"FF";
+    signal JB : std_logic_vector(7 downto 0) := X"00";
+    signal JC : std_logic_vector(7 downto 0) := X"00";
+    signal JD : std_logic_vector(7 downto 0) := X"00";
+    signal aclMISO : std_logic;
+    signal aclMOSI : std_logic;
+    signal aclSCK : std_logic;
+    signal aclSS : std_logic;
 
 begin
+    
+    clk100mhz <= not clk100mhz after 10ps;
     
     slowClock <= '1' when slowClockCounter > "011" else '0';
     
@@ -331,6 +335,5 @@ begin
         xOutput => JC,
         yOutput => JD
     );
-    
 
 end Behavioral;

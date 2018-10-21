@@ -43,8 +43,8 @@ entity userInterfaceModule is
         
         mode : in std_logic_vector(1 downto 0) := "00"; --connect to slide switches
         buttons : in std_logic_vector(3 downto 0) := "0000";
-        onButton : in std_logic := '0';
-        onLED : out std_logic := '1'
+        middleButton : in std_logic := '0';
+        LEDs : out std_logic_vector(15 downto 0) := X"0000"
     );
     
 end userInterfaceModule;
@@ -120,7 +120,11 @@ architecture Behavioral of userInterfaceModule is
     signal rightFlag : std_logic := '0';
     signal upFlag : std_logic := '0';
     signal downFlag : std_logic := '0';
-    
+    signal leftButton : std_logic := '0';
+    signal rightButton : std_logic := '0';
+    signal upButton : std_logic := '0';
+    signal downButton : std_logic := '0';
+    signal onButton : std_logic := '0';
     
     --UI FSM
     type sendingStates is (waiting, sendMode, waitSend, singleSend);
@@ -194,7 +198,13 @@ begin
 
     
     --LED(0) 
-    onLED <= displayOn;
+    LEDs(0) <= displayOn;
+    
+    LEDs(5) <= leftFlag;
+    LEDs(4) <= rightFlag;
+    LEDs(3) <= upFlag;
+    LEDs(2) <= downFlag;
+    
     
     --Display mode on sseg0
     sseg0(1 downto 0) <= mode;
@@ -223,29 +233,29 @@ begin
             
     --Handle LRUD button presses   
     --Left Button                     
-    process(buttons(0)) begin
-        if(buttons(0) = '1' and mode = "01" and xOffset /= "0000000") then
+    process(leftButton) begin
+        if(rising_edge(leftButton) and mode = "01" and xOffset /= "0000000") then
             leftFlag <= not leftFlag;
         end if;
     end process;    
         
     --Right Button                     
-    process(buttons(1)) begin
-        if(buttons(1) = '1' and mode = "01" and xOffset /= "1111111") then
+    process(rightButton) begin
+        if(rising_edge(rightButton) and mode = "01" and xOffset /= "1111111") then
             rightFlag <= not rightFlag;
         end if;
     end process; 
     
     --Up Button                     
-    process(buttons(2)) begin
-        if(buttons(2) = '1' and mode = "01" and yOffset /= "1111111") then
+    process(upButton) begin
+        if(rising_edge(upButton) and mode = "01" and yOffset /= "1111111") then
             upFlag <= not upFlag;
         end if;
     end process; 
     
     --Down Button                     
-    process(buttons(3)) begin
-        if(buttons(3) = '1' and mode = "01" and yOffset /= "0000000") then
+    process(downButton) begin
+        if(rising_edge(downButton) and mode = "01" and yOffset /= "0000000") then
             downFlag <= not downFlag;
         end if;
     end process;                      
@@ -257,142 +267,172 @@ begin
         end if;
     end process;
     
+    process(toModuleRegister) begin
+        sseg2(2 downto 0) <= toModuleRegister;
+    end process;
+    
+    
+    process(sendingState) begin
+        case sendingState is 
+            when waiting =>
+                sseg3 <= X"0";
+            when sendMode =>
+                sseg3 <= X"1";
+            when waitSend =>
+                sseg3 <= X"2";
+            when singleSend =>
+                sseg3 <= X"3";
+        end case;
+    end process;
+    
     --Send, receive functionality
     process(clk) begin
-        case sendingState is
-            
-            --Waiting for send to be triggered
-            when waiting =>
-                --Check mode change
-                if(modeFSM /= mode) then
-                    modeFSM <= mode;
-                    toSendRegister(15 downto 2) <= "00000000000000"; --clear
-                    toSendRegister(1 downto 0) <= mode;
---                    toModuleRegister <= "011"; --Accelerometer 
-                    sendFlag <= '1';
---                    sendingState <= sendMode;
-                    toModuleRegister <= "010";
-                    sendingState <= singleSend;
-                    
-                    xOffset <= "1000000";
-                    yOffset <= "1000000";
-                    xFrequency <= "0000001";
-                    yFrequency <= "0000001";
-                    
+        if rising_edge(clk) then 
+            case sendingState is
                 
-                --Check left button press    
-                elsif(leftFlagFSM /= leftFlag) then 
-                    leftFlagFSM <= leftFlag;
-                    xOffset <= xOffset - "1";
-                    toSendRegister(15 downto 14) <= "11"; --header
-                    toSendRegister(13 downto 7) <= xOffset - "1";
-                    toSendRegister(6 downto 0) <= yOffset;
-                    toModuleRegister <= "101"; --displayOut
-                    sendFlag <= '1';
-                    sendingState <= singleSend;
-
-                --Check right button press    
-                elsif(rightFlagFSM /= rightFlag) then 
-                    rightFlagFSM <= rightFlag;
-                    xOffset <= xOffset + "1";
-                    toSendRegister(15 downto 14) <= "11"; --header
-                    toSendRegister(13 downto 7) <= xOffset + "1";
-                    toSendRegister(6 downto 0) <= yOffset;
-                    toModuleRegister <= "101"; --displayOut
-                    sendFlag <= '1';
-                    sendingState <= singleSend;
-                    
-                --Check up button press    
-                elsif(upFlagFSM /= upFlag) then 
-                    upFlagFSM <= upFlag;
-                    yOffset <= yOffset + "1";
-                    toSendRegister(15 downto 14) <= "11"; --header
-                    toSendRegister(13 downto 7) <= xOffset;
-                    toSendRegister(6 downto 0) <= yOffset + "1";
-                    toModuleRegister <= "101"; --displayOut
-                    sendFlag <= '1';
-                    sendingState <= singleSend;
-
-                --Check down button press    
-                elsif(downFlagFSM /= downFlag) then 
-                    downFlagFSM <= downFlag;
-                    yOffset <= yOffset - "1";
-                    toSendRegister(15 downto 14) <= "11"; --header
-                    toSendRegister(13 downto 7) <= xOffset;
-                    toSendRegister(6 downto 0) <= yOffset - "1";
-                    toModuleRegister <= "101"; --displayOut
-                    sendFlag <= '1';
-                    sendingState <= singleSend;                                            
-                    
-                --Check frequency change
-                elsif(frequencyFlagFSM /= frequencyFlag) then 
-                    frequencyFlagFSM <= frequencyFlag;
-                    toSendRegister(15 downto 14) <= "10"; --header
-                    toSendRegister(13 downto 7) <= xFrequency;
-                    toSendRegister(6 downto 0) <= yFrequency;
-                    toModuleRegister <= "101"; --displayOut
-                    sendFlag <= '1';
-                    sendingState <= singleSend;
-                    
-                    
-                --Check display on/off change    
-                elsif(displayOnFSM /= displayOn) then 
-                    displayOnFSM <= displayOn;
-                    toSendRegister(15 downto 14) <= "01"; --header
-                    toSendRegister(13 downto 1) <= "0000000000000"; --clear
-                    toSendRegister(0) <= displayOn;  
-                    toModuleRegister <= "101";
-                    sendFlag <= '1';
-                    sendingState <= singleSend;
-                
-                end if;
-            
-            --Sending new mode 
-            when sendMode =>
-                if(grantLine <= '1') then 
-                    sendFlag <= '0';
-                    sendingState <= waitSend;
-                end if;
-                
-            --Waiting to send new mode    
-            when waitSend =>
-                if(readyLine = '0') then 
-                    --Finished sending mode to accelerometer, keyboard, curve calculator
-                    if(toModuleRegister = "001") then 
-                        sendingState <= waiting;
-                        
-                    --Send mode to next module    
-                    else
-                        toModuleRegister <= toModuleRegister - "1";
+                --Waiting for send to be triggered
+                when waiting =>
+                    --Check mode change
+                    if(modeFSM /= mode) then
+                        modeFSM <= mode;
+                        toSendRegister(15 downto 2) <= "00000000000000"; --clear
+                        toSendRegister(1 downto 0) <= mode;
+                        toModuleRegister <= "101"; --DisplayOut 
                         sendFlag <= '1';
                         sendingState <= sendMode;
+                        
+                        xOffset <= "1000000";
+                        yOffset <= "1000000";
+                        
+                        if(mode = "11") then 
+                            xFrequency <= "0000001";
+                            yFrequency <= "0000011";                                                    
+                        else
+                            xFrequency <= "0000001";
+                            yFrequency <= "0000001";
+                        end if;
+                    
+                    --Check left button press    
+                    elsif(leftFlagFSM /= leftFlag) then 
+                        leftFlagFSM <= leftFlag;
+                        xOffset <= xOffset - "1";
+                        toSendRegister(15 downto 14) <= "11"; --header
+                        toSendRegister(13 downto 7) <= xOffset - "1";
+                        toSendRegister(6 downto 0) <= yOffset;
+                        toModuleRegister <= "101"; --displayOut
+                        sendFlag <= '1';
+                        sendingState <= singleSend;
+    
+                    --Check right button press    
+                    elsif(rightFlagFSM /= rightFlag) then 
+                        rightFlagFSM <= rightFlag;
+                        xOffset <= xOffset + "1";
+                        toSendRegister(15 downto 14) <= "11"; --header
+                        toSendRegister(13 downto 7) <= xOffset + "1";
+                        toSendRegister(6 downto 0) <= yOffset;
+                        toModuleRegister <= "101"; --displayOut
+                        sendFlag <= '1';
+                        sendingState <= singleSend;
+                        
+                    --Check up button press    
+                    elsif(upFlagFSM /= upFlag) then 
+                        upFlagFSM <= upFlag;
+                        yOffset <= yOffset + "1";
+                        toSendRegister(15 downto 14) <= "11"; --header
+                        toSendRegister(13 downto 7) <= xOffset;
+                        toSendRegister(6 downto 0) <= yOffset + "1";
+                        toModuleRegister <= "101"; --displayOut
+                        sendFlag <= '1';
+                        sendingState <= singleSend;
+    
+                    --Check down button press    
+                    elsif(downFlagFSM /= downFlag) then 
+                        downFlagFSM <= downFlag;
+                        yOffset <= yOffset - "1";
+                        toSendRegister(15 downto 14) <= "11"; --header
+                        toSendRegister(13 downto 7) <= xOffset;
+                        toSendRegister(6 downto 0) <= yOffset - "1";
+                        toModuleRegister <= "101"; --displayOut
+                        sendFlag <= '1';
+                        sendingState <= singleSend;                                            
+                        
+                    --Check frequency change
+                    elsif(frequencyFlagFSM /= frequencyFlag) then 
+                        frequencyFlagFSM <= frequencyFlag;
+                        toSendRegister(15 downto 14) <= "10"; --header
+                        toSendRegister(13 downto 7) <= xFrequency;
+                        toSendRegister(6 downto 0) <= yFrequency;
+                        toModuleRegister <= "101"; --displayOut
+                        sendFlag <= '1';
+                        sendingState <= singleSend;
+                        
+                        
+                    --Check display on/off change    
+                    elsif(displayOnFSM /= displayOn) then 
+                        displayOnFSM <= displayOn;
+                        toSendRegister(15 downto 14) <= "01"; --header
+                        toSendRegister(13 downto 1) <= "0000000000000"; --clear
+                        toSendRegister(0) <= displayOn;  
+                        toModuleRegister <= "101";
+                        sendFlag <= '1';
+                        sendingState <= singleSend;
+                    
                     end if;
-                end if;
+                
+                --Sending new mode 
+                when sendMode =>
+                    if(grantLine <= '1') then 
+                        sendFlag <= '0';
+                        sendingState <= waitSend;
+                    end if;
+                    
+                --Waiting to send new mode    
+                when waitSend =>
+                    if(readyLine = '0') then 
+                        --Finished sending mode to displayOut, accelerometer, keyboard, curve calculator
+                        if(toModuleRegister = "001") then 
+                            sendingState <= waiting;
+                            
+                        --Send mode to next module    
+                        else
+                            if(toModuleRegister = "101") then 
+                                toModuleRegister <= "011"; --Accelerometer, skip BRAM
+                            else 
+                                toModuleRegister <= toModuleRegister - "1";
+                            end if;
+                            sendFlag <= '1';
+                            sendingState <= sendMode;
+                        end if;
+                    end if;
+                
+                --Handles sending to single module
+                when singleSend => 
+                    if(grantLine = '1') then 
+                        sendFlag <= '0';
+                        sendingState <= waiting;
+                    end if;
+                 
+            end case;
             
-            --Handles sending to single module
-            when singleSend => 
-                if(grantLine = '1') then 
-                    sendFlag <= '0';
-                    sendingState <= waiting;
+            --Handle received messages 
+            if(receivedFlag = '1') then
+                ackFlag <= '1';
+                --From keypad    
+                if(fromModuleRegister = "010") then
+                    xFrequency <= receivedRegister(14 downto 8);
+                    yFrequency <= receivedRegister(6 downto 0);
+                    frequencyFlag <= not frequencyFlag; 
                 end if;
-             
-        end case;
-        
-        --Handle received messages 
-        if(receivedFlag = '1') then
-            ackFlag <= '1';
-            
-            --From accelerometer
-            if(fromModuleRegister = "011") then 
-                --Handle messages from accelerometer
-            --From keypad    
-            elsif(fromModuleRegister = "010") then
-                xFrequency <= receivedRegister(14 downto 8);
-                yFrequency <= receivedRegister(6 downto 0);
-                frequencyFlag <= not frequencyFlag; 
+            else
+                ackFlag <= '0';
             end if;
-        else
-            ackFlag <= '0';
+            
+            --Buffer buttons
+            leftButton <= buttons(3);
+            rightButton <= buttons(0);
+            upButton <= buttons(2);
+            downButton <= buttons(1);
+            onbutton <= middleButton;
         end if;
     end process;
 

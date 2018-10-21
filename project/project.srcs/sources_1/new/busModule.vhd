@@ -28,12 +28,7 @@ entity busModule is
         toModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
         fromModuleAddress : inout std_logic_vector(2 downto 0) := "ZZZ";
         readyLine : inout std_logic := 'Z';
-        ackLine : inout std_logic := 'Z';
-        
-        --Express bus lines
-        expressRequestLines : inout std_logic_vector(1 downto 0);
-        expressReadyLines : inout std_logic_vector(1 downto 0);
-        expressDataLine : inout std_logic_vector(15 downto 0)
+        ackLine : inout std_logic := 'Z'
     );
 end busModule;
 

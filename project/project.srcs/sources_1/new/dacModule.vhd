@@ -18,7 +18,6 @@
 -- 
 ----------------------------------------------------------------------------------
 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -38,10 +37,10 @@ entity dacModule is
         --Interface with DMA bus
         xInput : in std_logic_vector(7 downto 0) := X"00";
         yInput : in std_logic_vector(7 downto 0) := X"00";
-        xRequest : out std_logic;
-        yRequest : out std_logic;
-        xReady : in std_logic;
-        yReady : in std_logic;
+        xRequest : out std_logic := '1';
+        yRequest : out std_logic := '1';
+        xReady : in std_logic := '0';
+        yReady : in std_logic := '0';
         
         --Interface with PMOD headers
         xOutput : out std_logic_vector(7 downto 0) := X"00";
@@ -80,18 +79,17 @@ architecture Behavioral of dacModule is
     
     component dacChannel is
         Port (
-            clk : in std_logic;
-            rst : in std_logic; 
-            enable : in std_logic;
-            frequency : in std_logic_vector(7 downto 0);
-            offset : in std_logic_vector(7 downto 0);
-            input : in std_logic_vector(7 downto 0);
-            output : out std_logic_vector(7 downto 0);
-            requestToReceive : out std_logic;
-            inputReady : in std_logic
+            clk : in std_logic := '0';
+            rst : in std_logic := '0'; 
+            enable : in std_logic := '1';
+            frequency : in std_logic_vector(7 downto 0) := X"01";
+            offset : in std_logic_vector(7 downto 0) := X"00";
+            input : in std_logic_vector(7 downto 0) := X"00";
+            output : out std_logic_vector(7 downto 0) := X"00";
+            requestToReceive : out std_logic := '1';
+            inputReady : in std_logic := '0'
         );
     end component;
-    
     
     --Bus signals
     signal receivedRegister : std_logic_vector(15 downto 0);
@@ -170,8 +168,15 @@ begin
                     --Mode change
                     when "00" =>
                         mode <= receivedRegister(1 downto 0);
-                        xFrequency <= X"01";
-                        yFrequency <= X"01";
+                        
+                        if(receivedRegister(1 downto 0) = "11") then 
+                            xFrequency <= "00000001";
+                            yFrequency <= "00000011";                                                    
+                        else
+                            xFrequency <= "00000001";
+                            yFrequency <= "00000001";
+                        end if;
+                        
                         xOffset <= X"00";
                         yOffset <= X"00";
                     
@@ -192,7 +197,13 @@ begin
                     when others => null;
                     
                 end case; 
+            
+            --From accelerometer
+            elsif(fromModuleAddress = "011") then
+                xFrequency <= receivedRegister(15 downto 8);
+                yFrequency <= receivedRegister(7 downto 0);
             end if;
+            
         end if;
               
         if(readyLine = '0') then 

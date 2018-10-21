@@ -18,7 +18,6 @@
 -- 
 ----------------------------------------------------------------------------------
 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -39,20 +38,19 @@ architecture Behavioral of TCCR is
 begin
 
     interrupt <= interruptFlag;
-
+    
     process(clk, rst) begin
-        if(rst = '1') then 
-            count <= X"00";
+        if(rst = '1') then
+            interruptFlag <= '0';
+            count <= (others => '0');
             
         elsif rising_edge(clk) then
-            if(count = compareRegister) then
-                count <= X"00";
+            if(count >= compareRegister) then
                 interruptFlag <= not interruptFlag;
+                count <= X"01";
             else
                 count <= count + "1";
-                --interrupt <= '0';
             end if;
         end if;
     end process;
-
 end Behavioral;

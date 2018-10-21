@@ -101,7 +101,7 @@ architecture Behavioral of curveCalculatorModule is
     type states is (idle, calculate, hold, send, repeat);
     signal state : states := idle;
     
-    signal updateFlag : std_logic := '0';
+    signal updateFlag : std_logic := '1';
     signal inValid : std_logic := '0';
     signal inData : std_logic_vector(15 downto 0) := X"0266";
     signal outValid : std_logic;
