@@ -108,7 +108,7 @@ begin
     slow : TCCR port map (
         clk => clk,
         rst => '0',
-        compareRegister => X"08", --200
+        compareRegister => X"06", --200
         interrupt => slowClock
     );
     

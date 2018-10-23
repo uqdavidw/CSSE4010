@@ -97,23 +97,23 @@ begin
     process(dataReady) begin
         if rising_edge(dataReady) then
             if(mode = "11") then  
-                if(unsigned(adjustedTilt) > 1700) then --Speed 3.03
+                if(unsigned(adjustedTilt) > 1600) then --Speed 3.03
                     xFrequency <= X"5B";
                     yFrequency <= X"1E";
                     displayDigit <= X"5";
-                elsif(unsigned(adjustedTilt) > 1600) then --Speed 3.025
+                elsif(unsigned(adjustedTilt) > 1500) then --Speed 3.025
                     xFrequency <= X"79";
                     yFrequency <= X"28";
                     displayDigit <= X"4";        
-                elsif(unsigned(adjustedTilt) > 1500) then --Speed 3.02
+                elsif(unsigned(adjustedTilt) > 1400) then --Speed 3.02
                     xFrequency <= X"97";
                     yFrequency <= X"32";
                     displayDigit <= X"3";                
-                elsif(unsigned(adjustedTilt) > 1400) then --Speed 3.015
+                elsif(unsigned(adjustedTilt) > 1300) then --Speed 3.015
                     xFrequency <= X"C7";
                     yFrequency <= X"42";
                     displayDigit <= X"2";        
-                elsif(unsigned(adjustedTilt) > 1300) then --Speed 3.01
+                elsif(unsigned(adjustedTilt) > 1250) then --Speed 3.01
                     xFrequency <= X"FD";
                     yFrequency <= X"54";
                     displayDigit <= X"1";           
