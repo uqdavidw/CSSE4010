@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: The University of Queensland
+-- Engineer: Sam Eadie
 -- 
 -- Create Date: 21.09.2018 09:24:17
 -- Design Name: 
@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
--- Description: 
+-- Description: Controller for the PmodKYPD keypad
 -- 
 -- Dependencies: 
 -- 
@@ -17,7 +17,6 @@
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
-
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -33,33 +32,39 @@ entity keypadAdapter is
 end keypadAdapter;
 
 architecture Behavioral of keypadAdapter is
+    --Current column being held high and read
     signal ColOn : std_logic_vector (1 downto 0) := "00";
+    
+    --Last column to register a button press
     signal depressedState : std_logic_vector (1 downto 0) := "00";    
 begin
-    process(clk)
-    begin
+
+    process(clk) begin
         if rising_edge(clk) then 
             case ColOn is
+                
                 --Check 1st column
                 when "00" =>
+                    
+                    --Read rows
                     case Row is 
-                        when "0111" => 
+                        when "0111" =>          --1
                             DecodeOut <= X"1";
                             depressedState <= "00";
                             buttonDepressed <= '1';
-                        when "1011" => 
+                        when "1011" =>          --4
                             DecodeOut <= X"4";
                             depressedState <= "00";
                             buttonDepressed <= '1';
-                        when "1101" => 
+                        when "1101" =>          --7
                             DecodeOut <= X"7";
                             depressedState <= "00";
                             buttonDepressed <= '1';
-                        when "1110" => 
+                        when "1110" =>          --0
                             DecodeOut <= X"0";
                             depressedState <= "00";
                             buttonDepressed <= '1';
-                        when others =>
+                        when others =>          --None
                             if depressedState = "00" then
                                 buttonDepressed <= '0';
                             end if;
@@ -69,20 +74,22 @@ begin
                 
                 --Check 2nd column
                 when "01" =>
+                
+                    --Read rows
                     case Row is 
-                        when "0111" => 
+                        when "0111" =>          --2 
                             DecodeOut <= X"2";
                             depressedState <= "01";
                             buttonDepressed <= '1';
-                        when "1011" => 
+                        when "1011" =>          --5
                             DecodeOut <= X"5";
                             depressedState <= "01";
                             buttonDepressed <= '1';
-                        when "1101" => 
+                        when "1101" =>          --8
                             DecodeOut <= X"8";
                             depressedState <= "01";
                             buttonDepressed <= '1';
-                        when "1110" => 
+                        when "1110" =>          --F
                             DecodeOut <= X"F";
                             depressedState <= "01";
                             buttonDepressed <= '1';
@@ -96,20 +103,22 @@ begin
                 
                 --Check 3rd column
                 when "10" =>
+                
+                    --Read rows
                     case Row is 
-                        when "0111" => 
+                        when "0111" =>          --3 
                             DecodeOut <= X"3";
                             depressedState <= "10";
                             buttonDepressed <= '1';
-                        when "1011" => 
+                        when "1011" =>          --6
                             DecodeOut <= X"6";
                             depressedState <= "10";
                             buttonDepressed <= '1';
-                        when "1101" => 
+                        when "1101" =>          --9
                             DecodeOut <= X"9";
                             depressedState <= "10";
                             buttonDepressed <= '1';
-                        when "1110" => 
+                        when "1110" =>          --E
                             DecodeOut <= X"E";
                             depressedState <= "10";
                             buttonDepressed <= '1';
@@ -123,20 +132,22 @@ begin
                 
                 --Check 4th column
                 when "11" =>
+                
+                    --Read rows
                     case Row is 
-                        when "0111" => 
+                        when "0111" =>          --A 
                             DecodeOut <= X"A";
                             depressedState <= "11";
                             buttonDepressed <= '1';
-                        when "1011" => 
+                        when "1011" =>          --B
                             DecodeOut <= X"B";
                             depressedState <= "11";
                             buttonDepressed <= '1';
-                        when "1101" => 
+                        when "1101" =>          --C
                             DecodeOut <= X"C";
                             depressedState <= "11";
                             buttonDepressed <= '1';
-                        when "1110" => 
+                        when "1110" =>          --D
                             DecodeOut <= X"D";
                             depressedState <= "11";
                             buttonDepressed <= '1';

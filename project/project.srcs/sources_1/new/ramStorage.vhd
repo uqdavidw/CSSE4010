@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: The University of Queensland
+-- Engineer: Sam Eadie
 -- 
 -- Create Date: 06.10.2018 14:34:03
 -- Design Name: 
@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
--- Description: 
+-- Description: Stores values in BRAM, and outputs on DMA bus
 -- 
 -- Dependencies: 
 -- 
@@ -67,24 +67,25 @@ architecture Behavioral of ramStorage is
     end component;    
     
     --BRAM sine LUT
-     signal writeSinEnable : std_logic_vector(0 downto 0) := "1";
-     signal sinAddress : std_logic_vector(9 downto 0) := "0000000000";
-     signal sinIn : std_logic_vector(7 downto 0) := X"00";
+    signal writeSinEnable : std_logic_vector(0 downto 0) := "1";
+    signal sinAddress : std_logic_vector(9 downto 0) := "0000000000";
+    signal sinIn : std_logic_vector(7 downto 0) := X"00";
     
     --BRAM cos LUT
-     signal writeCosEnable : std_logic_vector(0 downto 0) := "1";
-     signal cosAddress : std_logic_vector(9 downto 0) := "0000000000";
-     signal cosIn : std_logic_vector(7 downto 0) := X"00";
+    signal writeCosEnable : std_logic_vector(0 downto 0) := "1";
+    signal cosAddress : std_logic_vector(9 downto 0) := "0000000000";
+    signal cosIn : std_logic_vector(7 downto 0) := X"00";
      
-     type updateStates is (waiting, loading, nextValue);
-     signal state : updateStates := waiting;
+    --Load values FSM
+    type updateStates is (waiting, loading, nextValue);
+    signal state : updateStates := waiting;
      
-     type outputStates is (waiting, update);
-     signal sinState : outputStates := waiting;
-     signal cosState : outputStates := waiting;
-     
-     signal messageCounter : std_logic_vector(9 downto 0) := "0000000000";
-     signal slowClock : std_logic := '0';
+    --Express line handshake FSMs
+    type outputStates is (waiting, update);
+    signal sinState : outputStates := waiting;
+    signal cosState : outputStates := waiting;
+   
+    signal slowClock : std_logic := '0';
          
 begin
     
@@ -120,6 +121,7 @@ begin
             --Populating LUTs
             if(updating = '1') then 
                 case state is 
+                
                     when waiting =>
                         if(dataReady = '1') then 
                             sinIn <= inputData(15 downto 8);
@@ -140,7 +142,6 @@ begin
                             writeSinEnable <= "0";
                             sinAddress <= sinAddress + "1";
                             cosAddress <= cosAddress + "1";
-                            messageCounter <= messageCounter + "1";
                             state <= waiting;
                         end if;
                     

@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: The University of Queensland
+-- Engineer: Sam Eadie
 -- 
 -- Create Date: 16.10.2018 22:11:50
 -- Design Name: 
@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
--- Description: 
+-- Description: Timer Counter Control Register: toggles interrupt at variable rate
 -- 
 -- Dependencies: 
 -- 
@@ -37,14 +37,18 @@ architecture Behavioral of TCCR is
     signal interruptFlag : std_logic := '0';
 begin
 
+    --Buffer interrupt 
     interrupt <= interruptFlag;
     
     process(clk, rst) begin
+        
+        --Reset timer
         if(rst = '1') then
             interruptFlag <= '0';
             count <= (others => '0');
             
         elsif rising_edge(clk) then
+            --Toggle interrupt
             if(count >= compareRegister) then
                 interruptFlag <= not interruptFlag;
                 count <= X"01";

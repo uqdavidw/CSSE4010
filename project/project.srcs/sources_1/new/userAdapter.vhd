@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: The University of Queensland
+-- Engineer: Sam Eadie
 -- 
 -- Create Date: 06.10.2018 14:34:03
 -- Design Name: 
@@ -10,7 +10,7 @@
 -- Tool Versions: 
 -- Description: 
 -- 
--- Dependencies: 
+-- Dependencies: Handles user interface with sseg, slides, buttons and LEDs
 -- 
 -- Revision:
 -- Revision 0.01 - File Created
@@ -21,7 +21,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
---use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity userAdapter is
@@ -59,6 +58,7 @@ entity userAdapter is
 end userAdapter;
 
 architecture Behavioral of userAdapter is
+
     component clockScaler port (
         clk : in STD_LOGIC;
         rst : in STD_LOGIC;
@@ -87,22 +87,13 @@ architecture Behavioral of userAdapter is
     signal xOffset : std_logic_vector(7 downto 0) := "01000000";
     signal yOffset : std_logic_vector(7 downto 0) := "01000000";
     signal displayOn : std_logic := '1';
-    signal leftFlag : std_logic := '0';
-    signal rightFlag : std_logic := '0';
-    signal upFlag : std_logic := '0';
-    signal downFlag : std_logic := '0';
-    signal leftButton : std_logic := '0';
-    signal rightButton : std_logic := '0';
-    signal upButton : std_logic := '0';
-    signal downButton : std_logic := '0';
+    signal leftFlag, leftFlagFSM : std_logic := '0';
+    signal rightFlag, rightFlagFSM : std_logic := '0';
+    signal upFlag, upFlagFSM : std_logic := '0';
+    signal downFlag, downFlagFSM : std_logic := '0';
+    signal leftButton, rightButton, upButton, downButton : std_logic := '0';
     signal onButton : std_logic := '0';
     
-    --UI FSM
-    signal leftFlagFSM : std_logic := '0';
-    signal rightFlagFSM : std_logic := '0';
-    signal upFlagFSM : std_logic := '0';
-    signal downFlagFSM : std_logic := '0';
-
     --Output signals
     signal xOffsetMode, yOffsetMode : std_logic_vector(7 downto 0) := X"00";
     signal xFrequencyMode, yFrequencyMode : std_logic_vector(7 downto 0) := X"01";
@@ -123,6 +114,7 @@ architecture Behavioral of userAdapter is
     
 begin
     
+    --Avoid ghosting on sseg
     clock_scaler : clockScaler port map (
         clk => clk,
         rst => rst,
@@ -145,8 +137,10 @@ begin
         dots => ssegDecimalPoints
     );
 
+    --Mode
     mode <= slideSwitches;
     
+    --Outputs to DACs
     xFrequencyOut <= xFrequencyMode;
     yFrequencyOut <= yFrequencyMode;
     xOffsetOut <= xOffsetMode;
@@ -211,10 +205,8 @@ begin
     LEDs(3) <= upFlag;
     LEDs(2) <= downFlag;
     
-    
     --Display mode on sseg0
     sseg0(1 downto 0) <= slideSwitches;
-    --sseg0(3 downto 2) <= "00";
  
     --Calculate absolute value of offset (64 is centre)   
     xOffsetModeSigned <= std_logic_vector(64 - unsigned(xOffsetMode)) when (unsigned(xOffsetMode) < 64) else std_logic_vector(unsigned(xOffsetMode) - 64);
@@ -280,8 +272,10 @@ begin
     
     --Process button presses
     process(clk) begin
-        if rising_edge(clk) then  
-            if(slideSwitches = "01") then
+        if rising_edge(clk) then
+          
+            if(slideSwitches = "01") then --button mode
+                
                 --Check left button press    
                 if(leftFlagFSM /= leftFlag) then 
                     leftFlagFSM <= leftFlag;
@@ -305,6 +299,8 @@ begin
                     downFlagFSM <= downFlag;
                     yOffset <= yOffset - X"5";    
                 end if;    
+            
+            --Reset offsets on mode changes
             else
                 xOffset <= "01000000";
                 yOffset <= "01000000";

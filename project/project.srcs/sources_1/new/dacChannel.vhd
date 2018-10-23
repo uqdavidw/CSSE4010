@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: The University of Queensland
+-- Engineer: Sam Eadie
 -- 
 -- Create Date: 17.10.2018 08:10:43
 -- Design Name: 
@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
--- Description: 
+-- Description: Outputs a signal from BRAM with variable frequency and offset
 -- 
 -- Dependencies: 
 -- 
@@ -17,7 +17,6 @@
 -- Additional Comments:
 -- 
 ----------------------------------------------------------------------------------
-
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -41,14 +40,8 @@ entity dacChannel is
 end dacChannel;
 
 architecture Behavioral of dacChannel is
-    type DMAstates is (request, read);
-    signal dmaState : DMAstates := request;
     
-    signal interrupt : std_logic := '0';
-    signal acknowledge : std_logic := '0';
-    
-    signal address : std_logic_vector(9 downto 0) := "0000000000";
-
+    --Timer Counter Control Register
     component TCCR is 
         Port (
             clk : in std_logic := '0';
@@ -58,13 +51,22 @@ architecture Behavioral of dacChannel is
         );
     end component;
     
+    --DMA bus handshake FSM
+    type DMAstates is (request, read);
+    signal dmaState : DMAstates := request;
+        
+    --TCCR update signals    
+    signal interrupt : std_logic := '0';
+    signal acknowledge : std_logic := '0';
+    
+    --The address in BRAM to read from
+    signal address : std_logic_vector(9 downto 0) := "0000000000";    
+    
+    --Clock scalings
     signal scaledClk : std_logic := '0';
     signal clkCounter : std_logic_vector(1 downto 0) := "00";
     
 begin
-
-    scaledClk <= '1' when clkCounter > "01" else '0';
-    ramAddress <= address;
 
     counter : TCCR port map (
         clk => scaledClk,
@@ -73,15 +75,23 @@ begin
         interrupt => interrupt
     );
     
+    scaledClk <= '1' when clkCounter > "01" else '0';
+    ramAddress <= address;
+    
     process(clk) begin
+    
+        --Reset dacChannel, synchronise phase between multiple signals
         if(rst = '1') then 
-            --dmaState <= read;
-            --requestToReceive <= '0';
             clkCounter <= "00";
-            address <= "0000000000";   
+            address <= "0000000000";
+               
         elsif rising_edge(clk) then
             clkCounter <= clkCounter + "1"; 
+            
+            --Express bus handshake
             case dmaState is
+                
+                --Request new value on TCCR interrupt
                 when request =>
                     if(interrupt /= acknowledge) then 
                         acknowledge <= not acknowledge;
@@ -89,6 +99,7 @@ begin
                         dmaState <= read;    
                     end if;
                     
+                --Output value when ready
                 when read =>
                     if(inputReady = '1') then 
                         --Change output, overflow detection
@@ -98,6 +109,7 @@ begin
                             output <= X"FF";
                         end if;
                         
+                        --Output enable
                         if(enable = '0') then
                             output <= X"00";
                         end if;

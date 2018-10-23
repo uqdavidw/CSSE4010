@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: The University of Queensland
+-- Engineer: Sam Eadie
 -- 
 -- Create Date: 06.10.2018 14:34:03
 -- Design Name: 
@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
--- Description: 
+-- Description: Displays signals from BRAM through DACS at variable frequencies 
 -- 
 -- Dependencies: 
 -- 
@@ -87,23 +87,7 @@ architecture Behavioral of displayOut is
     signal yFrequencyBuffer : std_logic_vector(7 downto 0) := "00000000";
     
 begin
-    --Half inputs in "01" mode, smaller circle to shift around
-    xScaledInput(7) <= '0' when mode = "01" else xInput(7);
-    xScaledInput(6 downto 0) <= xInput(7 downto 1) when mode = "01" else xInput(6 downto 0); 
-    yScaledInput(7) <= '0' when mode = "01" else yInput(7);
-    yScaledInput(6 downto 0) <= yInput(7 downto 1) when mode = "01" else yinput(6 downto 0);
-        
-    process(slowClock) begin
-        if rising_edge(slowClock) then 
-            if((xFrequency /= xFrequencyBuffer) or (yFrequency /= yFrequencyBuffer)) then
-                xFrequencyBuffer <= xFrequency;
-                yFrequencyBuffer <= yFrequency;
-                rst <= '1';
-            else
-                rst <= '0';
-            end if;
-        end if;
-    end process;
+
         
     slow : TCCR port map (
         clk => clk,
@@ -137,4 +121,24 @@ begin
         inputReady => yReady,
         ramAddress => yAddress
     );
+
+    --Half inputs in "01" mode (bit shift), smaller circle to shift around
+    xScaledInput(7) <= '0' when mode = "01" else xInput(7);
+    xScaledInput(6 downto 0) <= xInput(7 downto 1) when mode = "01" else xInput(6 downto 0); 
+    yScaledInput(7) <= '0' when mode = "01" else yInput(7);
+    yScaledInput(6 downto 0) <= yInput(7 downto 1) when mode = "01" else yinput(6 downto 0);
+        
+    --Reset DACs on frequency changes to preserve relative phase
+    process(slowClock) begin
+        if rising_edge(slowClock) then 
+            if((xFrequency /= xFrequencyBuffer) or (yFrequency /= yFrequencyBuffer)) then
+                xFrequencyBuffer <= xFrequency;
+                yFrequencyBuffer <= yFrequency;
+                rst <= '1';
+            else
+                rst <= '0';
+            end if;
+        end if;
+    end process;
+
 end Behavioral;

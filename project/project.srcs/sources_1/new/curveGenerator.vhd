@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
--- Description: 
+-- Description: Calculates sin and cos LUTs to store in BRAM
 --
 -- Dependencies: 
 --
@@ -20,9 +20,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
---use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
-
 
 entity curveGenerator is
     Port (
@@ -37,28 +35,30 @@ end curveGenerator;
 
 architecture Behavioral of curveGenerator is
 
-COMPONENT cordic_0 IS
-      PORT (
-        aclk : IN STD_LOGIC;
-        s_axis_phase_tvalid : IN STD_LOGIC;
-        s_axis_phase_tdata : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        m_axis_dout_tvalid : OUT STD_LOGIC;
-        m_axis_dout_tdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
-      );
-END COMPONENT;
+    COMPONENT cordic_0 IS
+        PORT (
+            aclk : IN STD_LOGIC;
+            s_axis_phase_tvalid : IN STD_LOGIC;
+            s_axis_phase_tdata : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            m_axis_dout_tvalid : OUT STD_LOGIC;
+            m_axis_dout_tdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        );
+    END COMPONENT;
 
-component TCCR is
-    Port (
-        clk : in std_logic;
-        rst : in std_logic; 
-        compareRegister : in std_logic_vector(7 downto 0);
-        interrupt : out std_logic := '0'
-     );
-end component;
-    
+    component TCCR is
+        Port (
+            clk : in std_logic;
+            rst : in std_logic; 
+            compareRegister : in std_logic_vector(7 downto 0);
+            interrupt : out std_logic := '0'
+         );
+    end component;
+   
+    --Updating LUT FSM 
     type states is (starting, calculating, ready, nextValue, done);
     signal state : states := starting;
     
+    --Cordic IP handshake
     signal inValid : std_logic := '0';
     signal inData : std_logic_vector(15 downto 0) := X"0000";
     signal outData : std_logic_vector(31 downto 0) := X"00000000";
@@ -66,6 +66,7 @@ end component;
     signal clk : std_logic := '0';
     signal updatingFlag : std_logic := '1';
     signal outValid : std_logic := '0';
+    
     
     signal rawSin : signed (15 downto 0);
     signal rawCos : signed (15 downto 0);
@@ -99,17 +100,17 @@ begin
     rawSin <= signed(outData (31 downto 16)) + 16384;
     rawCos <= signed(outData (15 downto 0)) + 16384;
     
-    -- Ensure the case for -1 is taken care of by mapping it to 0.
+    -- Handle -1 case
     sinOut <= std_logic_vector(rawSin (14 downto 7)) when rawSin(15) = '0' else not std_logic_vector(rawSin (14 downto 7));
     cosOut <= std_logic_vector(rawCos (14 downto 7)) when rawCos(15) = '0' else not std_logic_vector(rawCos (14 downto 7));    
     
     process(clk100mhz) begin
         if rising_edge(clk100mhz) then 
-            case state is 
+            case state is
             
                 when starting =>
                     if(outValid = '0') then 
-                        inData <= "1110000000000000"; 
+                        inData <= "1110000000000000"; --startValue = -1
                         inValid <= '1';
                         state <= calculating;
                     end if;
@@ -127,7 +128,7 @@ begin
                 
                 when nextValue =>
                     if(outValid = '0' and dataTaken = '0') then 
-                        if(inData = "0010000000000000") then 
+                        if(inData = "0010000000000000") then --end values = 1 
                             inData <= "1110000000000000";
                             updatingFlag <= '0';
                             state <= done;
@@ -145,5 +146,4 @@ begin
             end case;
         end if;
     end process;
-    
 end Behavioral;

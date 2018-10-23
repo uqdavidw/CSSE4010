@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: The University of Queensland 
+-- Engineer: Sam Eadie
 -- 
 -- Create Date: 06.10.2018 14:32:16
 -- Design Name: 
@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
--- Description: 
+-- Description: Provides frequency updates from on-board ADXL accelerometer 
 -- 
 -- Dependencies: 
 -- 
@@ -31,6 +31,7 @@ entity tiltReader is
             yFrequency: out std_logic_vector(7 downto 0) := X"03";
             displayDigit: out std_logic_vector(3 downto 0) := X"0";
             mode : in std_logic_vector(1 downto 0);            
+            
             --SPI Interface Signals
             SCLK        : out std_logic;
             MOSI        : out std_logic;
@@ -40,6 +41,7 @@ entity tiltReader is
 end tiltReader;
 
 architecture Behavioral of tiltReader is
+    --ADXL controller: Digilent Source Code
     component ADXL362Ctrl
         Generic (
             SYSCLK_FREQUENCY_HZ : integer := 100000000;
@@ -69,10 +71,6 @@ architecture Behavioral of tiltReader is
     --Accelerometer Signals
     signal dataReady : std_logic := '0';
     signal aX, aY, aZ : std_logic_vector(11 downto 0) := X"000";
-    --signal maxTilt : std_logic_vector(11 downto 0);
-    
-    type sendingStates is (offMode, waitSend, waitTurn, write, waitACK);
-    signal sendingState : sendingStates := offMode;
     
     signal adjustedTilt : std_logic_vector(11 downto 0);
     
@@ -93,35 +91,48 @@ begin
 
     adjustedTilt <= aZ + X"800"; --Shift up 2048 to make fully positive
 
-    --Change Frequency 
+    --Threshold acceleration on updates 
     process(dataReady) begin
         if rising_edge(dataReady) then
-            if(mode = "11") then  
-                if(unsigned(adjustedTilt) > 1600) then --Speed 3.03
+            if(mode = "11") then --Accelerometer mode  
+                
+                --Speed 3.03
+                if(unsigned(adjustedTilt) > 1600) then 
                     xFrequency <= X"5B";
                     yFrequency <= X"1E";
                     displayDigit <= X"5";
-                elsif(unsigned(adjustedTilt) > 1500) then --Speed 3.025
+                    
+                --Speed 3.025    
+                elsif(unsigned(adjustedTilt) > 1500) then
                     xFrequency <= X"79";
                     yFrequency <= X"28";
                     displayDigit <= X"4";        
-                elsif(unsigned(adjustedTilt) > 1400) then --Speed 3.02
+                
+                --Speed 3.02
+                elsif(unsigned(adjustedTilt) > 1400) then
                     xFrequency <= X"97";
                     yFrequency <= X"32";
                     displayDigit <= X"3";                
-                elsif(unsigned(adjustedTilt) > 1300) then --Speed 3.015
+                
+                --Speed 3.015
+                elsif(unsigned(adjustedTilt) > 1300) then
                     xFrequency <= X"C7";
                     yFrequency <= X"42";
                     displayDigit <= X"2";        
-                elsif(unsigned(adjustedTilt) > 1250) then --Speed 3.01
+                    
+                --Speed 3.01
+                elsif(unsigned(adjustedTilt) > 1250) then
                     xFrequency <= X"FD";
                     yFrequency <= X"54";
                     displayDigit <= X"1";           
+                
+                --Speed 3.00
                 else                                
                     xFrequency <= X"FF";
                     yFrequency <= X"55";     
                     displayDigit <= X"0";   
                 end if;
+                
             end if;
         end if;
     end process;
