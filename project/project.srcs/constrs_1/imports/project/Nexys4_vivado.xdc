@@ -206,29 +206,29 @@ set_property PACKAGE_PIN V10 [get_ports {pushButtons[1]}]
 	set_property IOSTANDARD LVCMOS33 [get_ports {pushButtons[1]}]
  
 
-#set_property PACKAGE_PIN B13 [get_ports {logic_analyzer[0]}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[0]}]
+set_property PACKAGE_PIN B13 [get_ports {logic_analyzer[0]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[0]}]
 
-#set_property PACKAGE_PIN F14 [get_ports {logic_analyzer[1]}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[1]}]
+set_property PACKAGE_PIN F14 [get_ports {logic_analyzer[1]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[1]}]
 
-#set_property PACKAGE_PIN D17 [get_ports {logic_analyzer[2]}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[2]}]
+set_property PACKAGE_PIN D17 [get_ports {logic_analyzer[2]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[2]}]
 
-#set_property PACKAGE_PIN E17 [get_ports {logic_analyzer[3]}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[3]}]
+set_property PACKAGE_PIN E17 [get_ports {logic_analyzer[3]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[3]}]
 
-#set_property PACKAGE_PIN G14 [get_ports {logic_analyzer[4]}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[4]}]
+set_property PACKAGE_PIN G14 [get_ports {logic_analyzer[4]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[4]}]
 
-#set_property PACKAGE_PIN P15 [get_ports {logic_analyzer[5]}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[5]}]
+set_property PACKAGE_PIN P15 [get_ports {logic_analyzer[5]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[5]}]
 
-#set_property PACKAGE_PIN V11 [get_ports {logic_analyzer[6]}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[6]}]
+set_property PACKAGE_PIN V11 [get_ports {logic_analyzer[6]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[6]}]
 
-#set_property PACKAGE_PIN V15 [get_ports {logic_analyzer[7]}]					
-#	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[7]}]
+set_property PACKAGE_PIN V15 [get_ports {logic_analyzer[7]}]					
+	set_property IOSTANDARD LVCMOS33 [get_ports {logic_analyzer[7]}]
 
 
 #Pmod Header JA

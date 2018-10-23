@@ -23,11 +23,6 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity keyboard is
     Port (
         clk : in std_logic;
@@ -35,12 +30,21 @@ entity keyboard is
         col : out std_logic_vector(3 downto 0);
         xFrequency : out std_logic_vector(7 downto 0) := X"01";
         yFrequency : out std_logic_vector(7 downto 0) := X"01";
+        displayDigit : out std_logic_vector(3 downto 0) := X"0";
         mode : in std_logic_vector(1 downto 0) := "00"
                 
     );
 end keyboard;
 
 architecture Behavioral of keyboard is
+    component TCCR is
+        Port (
+            clk : in std_logic;
+            rst : in std_logic; 
+            compareRegister : in std_logic_vector(7 downto 0);
+            interrupt : out std_logic := '0'
+         );
+    end component;    
 
     component keypadAdapter port (
 		clk : in  STD_LOGIC;
@@ -51,6 +55,8 @@ architecture Behavioral of keyboard is
     );
     end component;
     
+    signal slowClock : std_logic := '0';
+    
     --Keypad signals
     signal keypadValue : std_logic_vector(3 downto 0) := "0000";
     signal buttonDepressed : std_logic := '0';
@@ -58,12 +64,24 @@ architecture Behavioral of keyboard is
    
     signal valueUpdated : std_logic := '0'; 
     signal updateHandled : std_logic := '0';
+    
+    signal clearRegistersFlag : std_logic := '0';
+    signal registersCleared : std_logic := '0';
         
 begin
 
+    displayDigit <= keypadValue;
+
+    slowDown : TCCR port map (
+        clk => clk,
+        rst => '0',
+        compareRegister => X"FF", 
+        interrupt => slowClock
+    );
+
     --Interfaces with keypad hardware
     adapter : keypadAdapter port map (
-        clk => clk,
+        clk => slowClock,
         DecodeOut => keypadValue,
         Row => row, 
         Col => col,
@@ -82,17 +100,28 @@ begin
                     if(keypadValue > X"9") then 
                         valueUpdated <= not valueUpdated;
                     end if;
-                end if;
+                 end if;
+             else
+                enteredValues <= X"000";
+             end if;
+         end if;
+         
+         if rising_edge(clk) then
+            if(registersCleared /= clearRegistersFlag) then
+                registersCleared <= clearRegistersFlag; 
+                enteredValues <= X"000";
             end if;
-        end if;
+         end if;
     end process;
     
     --Handles sending and receiving messages
-    process (clk) begin
-        if rising_edge(clk) then 
+    process (slowClock) begin
+        if rising_edge(slowClock) then 
             --Process shift register
             if(updateHandled /= valueUpdated) then
                 updateHandled <= valueUpdated;
+                
+                clearRegistersFlag <= not clearRegistersFlag;
                 
                 --Check inputs are valid
                 if(enteredValues(11 downto 8) < X"9" or enteredValues(7 downto 4) < X"9") then
@@ -112,6 +141,12 @@ begin
                     end if;
                     
                 end if;
+            end if;
+            
+            if(mode /= "10") then 
+                xFrequency <= X"00";
+                yFrequency <= X"00";
+                clearRegistersFlag <= not clearRegistersFlag;
             end if;
         end if;    
     end process;

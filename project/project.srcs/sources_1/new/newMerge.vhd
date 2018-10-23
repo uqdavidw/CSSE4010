@@ -120,10 +120,12 @@ architecture Behavioral of newMerge is
             --Interface with keyboard
             xKeypadFrequency : in std_logic_vector(7 downto 0) := X"01";
             yKeypadFrequency : in std_logic_vector(7 downto 0) := X"01";
+            keypadDisplayDigit : in std_logic_vector(3 downto 0) := X"0";
             
             --Interface with accelerometer
             xAccelFrequency : in std_logic_vector(7 downto 0) := X"01";
             yAccelFrequency : in std_logic_vector(7 downto 0) := X"03";
+            accelDisplayDigit : in std_logic_vector(3 downto 0) := X"0";
             
             --Outputs
             mode : out std_logic_vector(1 downto 0);
@@ -143,9 +145,26 @@ architecture Behavioral of newMerge is
             col : out std_logic_vector(3 downto 0);
             xFrequency : out std_logic_vector(7 downto 0) := X"01";
             yFrequency : out std_logic_vector(7 downto 0) := X"01";
+            displayDigit : out std_logic_vector(3 downto 0) := X"0";
             mode : in std_logic_vector(1 downto 0) := "00"                
         );
-    end component;    
+    end component; 
+    
+    component tiltReader is
+        Port (
+            clk : in std_logic;
+            rst : in std_logic;
+            xFrequency: out std_logic_vector(7 downto 0) := X"01";
+            yFrequency: out std_logic_vector(7 downto 0) := X"03";
+            displayDigit : out std_logic_vector(3 downto 0) := X"0";
+            mode : in std_logic_vector(1 downto 0);            
+            --SPI Interface Signals
+            SCLK        : out std_logic;
+            MOSI        : out std_logic;
+            MISO        : in  std_logic;
+            SS          : out std_logic     
+        );
+    end component;       
       
     --Curve calculator to RAM signals
     signal loadingData : std_logic_vector(15 downto 0) := X"0000";
@@ -176,6 +195,12 @@ architecture Behavioral of newMerge is
     --Keypad to UI signals
     signal xKeypadFrequency : std_logic_vector(7 downto 0);
     signal yKeypadFrequency : std_logic_vector(7 downto 0);
+    signal keypadDisplayDigit : std_logic_vector(3 downto 0);
+    
+    --Accelerometer to UI signals
+    signal xAccelFrequency : std_logic_vector(7 downto 0);
+    signal yAccelFrequency : std_logic_vector(7 downto 0);
+    signal accelDisplayDigit : std_logic_vector(3 downto 0);
 
 begin
 
@@ -235,8 +260,10 @@ begin
         LEDs => LEDs,
         xKeypadFrequency => xKeypadFrequency,
         yKeypadFrequency => yKeypadFrequency,
-        xAccelFrequency => X"01",
-        yAccelFrequency => X"03",
+        xAccelFrequency => xAccelFrequency,
+        yAccelFrequency => yAccelFrequency,
+        keypadDisplayDigit => keypadDisplayDigit,
+        accelDisplayDigit => accelDisplayDigit,
         mode => mode,
         xFrequencyOut => xFrequencyOut,
         yFrequencyOut => yFrequencyOut,
@@ -251,7 +278,21 @@ begin
         col => logic_analyzer(3 downto 0),
         xFrequency => xKeypadFrequency,
         yFrequency => yKeypadFrequency,
+        displayDigit => keypadDisplayDigit,
         mode => mode
     );
     
+    tilt : tiltReader port map (
+        clk => clk100mhz,
+        rst => masterReset,
+        xFrequency => xAccelFrequency,
+        yFrequency => yAccelFrequency,
+        displayDigit => accelDisplayDigit,
+        mode => mode,
+        SCLK => aclSCK,
+        MOSI => aclMOSI,
+        MISO => aclMISO,
+        SS => aclSS
+    );
+     
 end Behavioral;

@@ -40,10 +40,12 @@ entity userAdapter is
         --Interface with keyboard
         xKeypadFrequency : in std_logic_vector(7 downto 0) := X"01";
         yKeypadFrequency : in std_logic_vector(7 downto 0) := X"01";
+        keypadDisplayDigit : in std_logic_vector(3 downto 0) := X"0";
         
         --Interface with accelerometer
         xAccelFrequency : in std_logic_vector(7 downto 0) := X"01";
         yAccelFrequency : in std_logic_vector(7 downto 0) := X"03";
+        accelDisplayDigit : in std_logic_vector(3 downto 0) := X"0";
         
         --Outputs
         mode : out std_logic_vector(1 downto 0);
@@ -117,6 +119,14 @@ architecture Behavioral of userAdapter is
     signal sseg6 : std_logic_vector(3 downto 0) := X"0";
     signal sseg7 : std_logic_vector(3 downto 0) := X"0";    
     
+    signal leftSsegHex : std_logic_vector(7 downto 0);
+    signal rightSsegHex : std_logic_vector(7 downto 0);
+    
+    signal sseg7dec : std_logic_vector(7 downto 0);
+    signal sseg6dec : std_logic_vector(7 downto 0);
+    signal sseg5dec : std_logic_vector(7 downto 0);
+    signal sseg4dec : std_logic_vector(7 downto 0); 
+    
     signal bcdConverter1 : std_logic_vector(6 downto 0) := "0000000";
     signal bcdConverter2 : std_logic_vector(6 downto 0) := "0000000";
     signal bcdConverter3 : std_logic_vector(6 downto 0) := "0000000";
@@ -152,6 +162,22 @@ begin
     xOffsetOut <= xOffsetMode;
     yOffsetOut <= yOffsetMode;
     
+    --Display current modules digit
+    process(slideSwitches, keypadDisplayDigit, accelDisplayDigit) begin
+        case slideSwitches is
+            when "00" =>
+                sseg3 <= X"0";
+            when "01" => 
+                sseg3 <= X"0";
+            when "10" =>
+                sseg3 <= keypadDisplayDigit;
+            when "11" =>
+                sseg3 <= accelDisplayDigit;
+            when others => null;
+        end case;
+    end process;
+    
+    --Select x frequency source for mode
     process(slideSwitches, xKeypadFrequency, xAccelFrequency) begin
         case slideSwitches is 
             when "00" =>
@@ -166,6 +192,7 @@ begin
         end case;
     end process;
     
+    --Select y frequency source for mode
     process(slideSwitches, yKeypadFrequency, yAccelFrequency) begin
         case slideSwitches is 
             when "00" =>
@@ -180,13 +207,15 @@ begin
         end case;    
     end process;
     
+    --Select x, y offset source for mode
     xOffsetMode <= xOffset when slideSwitches = "01" else X"00";
     yOffsetMode <= yOffset when slideSwitches = "01" else X"00";
     
+    --Enable output display
     outputEnable <= displayOn;
-    
-    --LED(0) 
     LEDs(0) <= displayOn;
+    
+    --Toggle LEDs on button presses
     LEDs(5) <= leftFlag;
     LEDs(4) <= rightFlag;
     LEDs(3) <= upFlag;
@@ -195,52 +224,46 @@ begin
     
     --Display mode on sseg0
     sseg0(1 downto 0) <= slideSwitches;
-    sseg0(3 downto 2) <= "00";
+    --sseg0(3 downto 2) <= "00";
     
-    --Display xOffset or xFrequency on sseg6, 7
---    bcdConverter1 <= std_logic_vector(unsigned(xOffset) / 10) when mode = "01" 
---                else std_logic_vector(unsigned(xFrequency) / 10);
---    sseg7 <= bcdConverter1(3 downto 0);
---    bcdConverter2 <= std_logic_vector(unsigned(xOffset) mod 10) when mode = "01" 
---            else std_logic_vector(unsigned(xFrequency) mod 10);
---    sseg6 <= bcdConverter2(3 downto 0);
+    --Select sseg display based on mode      
+    leftSsegHex <= xOffsetMode when slideSwitches = "01" else xFrequencyMode;
+    rightSsegHex <= yOffsetMode when slideSwitches = "01" else yFrequencyMode;
+     
+    --Convert hex to dec
+    sseg7dec <= std_logic_vector(unsigned(leftSsegHex) / 10);
+    sseg6dec <= std_logic_vector(unsigned(leftSsegHex) mod 10);
+    sseg5dec <= std_logic_vector(unsigned(rightSsegHex) / 10);
+    sseg4dec <= std_logic_vector(unsigned(rightSsegHex) mod 10);
+    sseg7 <= sseg7dec(3 downto 0);
+    sseg6 <= sseg6dec(3 downto 0);
+    sseg5 <= sseg5dec(3 downto 0);
+    sseg4 <= sseg4dec(3 downto 0);
     
---    --Display yOffset or yFrequency on sseg4, 5
---    bcdConverter3 <= std_logic_vector(unsigned(yOffset) / 10) when mode = "01"
---            else std_logic_vector(unsigned(yOffset) / 10);
---    sseg5 <= bcdConverter3(3 downto 0);        
---    bcdConverter4 <= std_logic_vector(unsigned(yOffset) mod 10) when mode = "01" 
---            else std_logic_vector(unsigned(yFrequency) mod 10);
---    sseg4 <= bcdConverter4(3 downto 0);
-            
-     sseg7(2 downto 0) <= xOffsetMode(6 downto 4) when slideSwitches = "01" else xFrequencyMode(6 downto 4);
-     sseg6 <= xOffsetMode(3 downto 0) when slideSwitches = "01" else xFrequencyMode(3 downto 0);
-     sseg5(2 downto 0) <= yOffsetMode(6 downto 4) when slideSwitches = "01" else yFrequencyMode(6 downto 4);
-     sseg4 <= yOffsetMode(3 downto 0) when slideSwitches = "01" else yFrequencyMode(3 downto 0);       
-            
-    --Handle LRUD button presses   
-    --Left Button                     
+    
+       
+    --Handle Left Button                     
     process(leftButton) begin
         if(rising_edge(leftButton) and slideSwitches = "01" and xOffset /= "0000000") then
             leftFlag <= not leftFlag;
         end if;
     end process;    
         
-    --Right Button                     
+    --Handle Right Button                     
     process(rightButton) begin
         if(rising_edge(rightButton) and slideSwitches = "01" and xOffset /= "1111111") then
             rightFlag <= not rightFlag;
         end if;
     end process; 
     
-    --Up Button                     
+    --Handle Up Button                     
     process(upButton) begin
         if(rising_edge(upButton) and slideSwitches = "01" and yOffset /= "1111111") then
             upFlag <= not upFlag;
         end if;
     end process; 
     
-    --Down Button                     
+    --Handle Down Button                     
     process(downButton) begin
         if(rising_edge(downButton) and slideSwitches = "01" and yOffset /= "0000000") then
             downFlag <= not downFlag;
@@ -255,33 +278,38 @@ begin
     end process;
     
     
-    --Send, receive functionality
+    --Process button presses
     process(clk) begin
         if rising_edge(clk) then  
-            --Check left button press    
-            if(leftFlagFSM /= leftFlag) then 
-                leftFlagFSM <= leftFlag;
-                xOffset <= xOffset - X"5";
-            end if;    
-            
-            --Check right button press    
-            if(rightFlagFSM /= rightFlag) then
-                rightFlagFSM <= rightFlag;
-                xOffset <= xOffset + X"5";
-            end if;    
-                                                
-            --Check up button press    
-            if(upFlagFSM /= upFlag) then
-                upFlagFSM <= upFlag;
-                yOffset <= yOffset + X"5";
-            end if;    
-                                                
-            --Check down button press    
-            if(downFlagFSM /= downFlag) then 
-                downFlagFSM <= downFlag;
-                yOffset <= yOffset - X"5";    
-            end if;    
-                    
+            if(slideSwitches = "01") then
+                --Check left button press    
+                if(leftFlagFSM /= leftFlag) then 
+                    leftFlagFSM <= leftFlag;
+                    xOffset <= xOffset - X"5";
+                end if;    
+                
+                --Check right button press    
+                if(rightFlagFSM /= rightFlag) then
+                    rightFlagFSM <= rightFlag;
+                    xOffset <= xOffset + X"5";
+                end if;    
+                                                    
+                --Check up button press    
+                if(upFlagFSM /= upFlag) then
+                    upFlagFSM <= upFlag;
+                    yOffset <= yOffset + X"5";
+                end if;    
+                                                    
+                --Check down button press    
+                if(downFlagFSM /= downFlag) then 
+                    downFlagFSM <= downFlag;
+                    yOffset <= yOffset - X"5";    
+                end if;    
+            else
+                xOffset <= "01000000";
+                yOffset <= "01000000";
+            end if;
+                
             --Buffer buttons
             leftButton <= buttons(3);
             rightButton <= buttons(0);
