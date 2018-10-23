@@ -34,6 +34,7 @@ entity dacChannel is
         offset : in std_logic_vector(7 downto 0) := X"00";
         input : in std_logic_vector(7 downto 0) := X"00";
         output : out std_logic_vector(7 downto 0) := X"00";
+        ramAddress : out std_logic_vector(9 downto 0) := "0000000000";
         requestToReceive : out std_logic := '1';
         inputReady : in std_logic := '0'
     );
@@ -45,6 +46,8 @@ architecture Behavioral of dacChannel is
     
     signal interrupt : std_logic := '0';
     signal acknowledge : std_logic := '0';
+    
+    signal address : std_logic_vector(9 downto 0) := "0000000000";
 
     component TCCR is 
         Port (
@@ -61,6 +64,7 @@ architecture Behavioral of dacChannel is
 begin
 
     scaledClk <= '1' when clkCounter > "01" else '0';
+    ramAddress <= address;
 
     counter : TCCR port map (
         clk => scaledClk,
@@ -71,9 +75,10 @@ begin
     
     process(clk) begin
         if(rst = '1') then 
-            dmaState <= read;
-            requestToReceive <= '0';
-            clkCounter <= "00";   
+            --dmaState <= read;
+            --requestToReceive <= '0';
+            clkCounter <= "00";
+            address <= "0000000000";   
         elsif rising_edge(clk) then
             clkCounter <= clkCounter + "1"; 
             case dmaState is
@@ -97,6 +102,7 @@ begin
                             output <= X"00";
                         end if;
                         
+                        address <= address + "1";
                         requestToReceive <= '0';
                         dmaState <= request;
                     end if;

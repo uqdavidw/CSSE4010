@@ -192,6 +192,15 @@ architecture Behavioral of boardTop is
     );
     end component;
     
+    component TCCR is
+        Port (
+            clk : in std_logic;
+            rst : in std_logic; 
+            compareRegister : in std_logic_vector(7 downto 0);
+            interrupt : out std_logic := '0'
+         );
+    end component;    
+    
     --General signals
     signal masterReset : std_logic := '0';
     
@@ -209,21 +218,27 @@ architecture Behavioral of boardTop is
     signal requestLines : std_logic_vector(7 downto 0);
     signal grantLines : std_logic_vector(7 downto 0);
     
-    --12.5MHz clock for DAC
-    signal slowClockCounter : std_logic_vector(8 downto 0) := "000000000";
+    --Slow clock for RAM and DAC
     signal slowClock : std_logic := '0';
 
 begin
     
-    JB <= expressDataLine(15 downto 8);
+    --Use JB for debugging
+    JB(7) <= clk100mhz;
+    JB(6) <= slowClock;
+    JB(5) <= readyLine;
+    JB(4) <= ackLine;
+    JB(3 downto 2) <= expressRequestLines;
+    JB(1 downto 0) <= expressReadyLines;
    
-    slowClock <= '1' when slowClockCounter > "011111111" else '0';
+   --Generate slower clock for RAM and DAC
+    slow : TCCR port map (
+       clk => clk100mhz,
+       rst => '0',
+       compareRegister => X"64", --200
+       interrupt => slowClock
+   );
     
-    process(clk100mhz) begin
-        if rising_edge(clk100mhz) then 
-            slowClockCounter <= slowClockCounter + "1";
-        end if;
-    end process;
     
     buss : busModule port map (
         dataLine => dataLine,

@@ -45,6 +45,9 @@ entity busSlave is
         
         ownAddress : in std_logic_vector(2 downto 0);
         
+        sendState : out std_logic_vector(2 downto 0) := "000";
+        receiveState : out std_logic_vector(1 downto 0) := "00";
+        
         --Sending interface with module
         toSendRegister : in std_logic_vector(15 downto 0);
         toModuleRegister : in std_logic_vector(2 downto 0);
@@ -67,6 +70,35 @@ architecture Behavioral of busSlave is
     
 begin
 
+    process(sendingState) begin
+        case sendingState is 
+            when waitSend =>
+                sendState <= "000";
+            when waitTurn =>
+                sendState <= "001";
+            when write =>
+                sendState <= "010";
+            when waitACK =>
+                sendState <= "011";
+            when finished =>
+                sendState <= "100";
+        end case;
+    end process;
+    
+    process(receivingState) begin
+        case receivingState is 
+            when waiting =>
+                receiveState <= "00";
+            when receiving => 
+                receiveState <= "01";
+            when ACK =>
+                receiveState <= "10";
+            when finished =>
+                receiveState <= "11";    
+        end case;
+    end process;
+
+
     --Handles sending messages
     sendValues : process(clk)
     begin
@@ -83,6 +115,7 @@ begin
                     --Waiting for module's turn to send    
                     when waitTurn => 
                         if(grantLine = '1') then
+                            readyLine <= '0';
                             sendingState <= write; 
                         end if;
                         
@@ -107,7 +140,7 @@ begin
                             
                     --Finished sending relinquish control
                     when finished =>
-                        if(ackLine = '0') then 
+                        if(ackLine = '0') then
                             dataLine <= "ZZZZZZZZZZZZZZZZ";
                             toModuleAddress <= "ZZZ";
                             fromModuleAddress <= "ZZZ";
@@ -116,7 +149,6 @@ begin
                             sendingState <= waitSend;
                         end if;    
                         
-                   
                 end case;
              end if;
     end process;
@@ -154,8 +186,10 @@ begin
                 
                 --Finished receving, relinquish control
                 when finished =>
-                    ackLine <= 'Z';
-                    receivingState <= waiting;
+                    --if (readyLine = '0') then
+                        ackLine <= 'Z';
+                        receivingState <= waiting;
+                    --end if;
 
             end case;
         end if;

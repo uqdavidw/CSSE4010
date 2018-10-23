@@ -25,15 +25,6 @@ use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity curveCalculatorModule is
     Port ( 
         clk : in std_logic;
@@ -64,6 +55,9 @@ architecture Behavioral of curveCalculatorModule is
                 
                 ownAddress : in std_logic_vector(2 downto 0);
                 
+                sendState : out std_logic_vector(2 downto 0) := "000";
+                receiveState : out std_logic_vector(1 downto 0) := "00";
+                
                 --Sending interface with module
                 toSendRegister : in std_logic_vector(15 downto 0);
                 toModuleRegister : in std_logic_vector(2 downto 0);
@@ -86,6 +80,9 @@ architecture Behavioral of curveCalculatorModule is
             m_axis_dout_tdata : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
     end component;
+
+    signal sendState : std_logic_vector(2 downto 0);
+    signal receiveState : std_logic_vector(1 downto 0);
 
     --Sending interface with module
     signal toSendRegister : std_logic_vector(15 downto 0);
@@ -119,6 +116,8 @@ begin
         readyLine => readyLine,
         ackLine => ackLine,
         ownAddress => "001",
+        sendState => sendState,
+        receiveState => receiveState,
         toSendRegister => toSendRegister,
         toModuleRegister => toModuleRegister,
         sendFlag => sendFlag,
@@ -191,7 +190,7 @@ begin
                         
                     --Repeat sending values
                     when repeat =>
-                        if(ackLine = '0' and outValid = '0') then 
+                        if((sendState = "100" or sendState = "000") and outValid = '0') then 
                             inValid <= '1';
                             state <= calculate;
                         end if;
@@ -213,6 +212,7 @@ begin
                     when holdFinished =>
                         if outValid = '0' then 
                             state <= idle;
+                            updateFlag <= '1'; --DELETE THIS
                         end if;       
                                                
                     

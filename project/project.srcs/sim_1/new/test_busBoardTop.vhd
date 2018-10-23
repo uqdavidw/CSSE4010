@@ -23,13 +23,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity test_Overall is
+entity test_busBoardTop is
 --  Port ( );
-end test_Overall;
+end test_busBoardTop;
 
-architecture Behavioral of test_Overall is
+architecture Behavioral of test_busBoardTop is
                 
-component boardTop is
+component busBoardTop is
     Port ( 
             ssegAnode : out  STD_LOGIC_VECTOR (7 downto 0);
            ssegCathode : out  STD_LOGIC_VECTOR (7 downto 0);
@@ -74,20 +74,21 @@ begin
     clk100mhz <= not clk100mhz after 10ps;
     
     inputs : process begin
-        wait for 2us;
-        slideSwitches <= X"0001";
-        wait for 2us;
-        slideSwitches <= X"0002";
-        wait for 2us;
-        slideSwitches <= X"0003";
-        wait for 2us;
-        slideSwitches <= X"0002";
-        wait for 2us;
-        slideSwitches <= X"0003";                                
+        pushButtons <= "00001";
+        wait for 20ns;
+        pushButtons <= "00000";
+        wait for 20ns;
+        pushButtons <= "00010";
+        wait for 20ns;
+        pushButtons <= "00000";
+        wait for 20ns;
+        pushButtons <= "00010";                                
+        wait for 20ns;
+        pushButtons <= "00000";                                        
         wait;
     end process;
     
-    board : boardTop port map (
+    board : busBoardTop port map (
         ssegAnode => ssegAnode,
         ssegCathode => ssegCathode,
         slideSwitches => slideSwitches,

@@ -26,8 +26,8 @@ entity keypadAdapter is
     Port (
         clk : in  STD_LOGIC;
         Row : in  STD_LOGIC_VECTOR (3 downto 0);
-	    Col : out  STD_LOGIC_VECTOR (3 downto 0) := "0000";
-        DecodeOut : out  STD_LOGIC_VECTOR (3 downto 0) := "0000";
+	    Col : out  STD_LOGIC_VECTOR (3 downto 0);
+        DecodeOut : out  STD_LOGIC_VECTOR (3 downto 0);
         buttonDepressed  : out STD_LOGIC := '0'
         );
 end keypadAdapter;

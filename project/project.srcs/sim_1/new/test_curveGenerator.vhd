@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 17.10.2018 17:27:14
 -- Design Name: 
--- Module Name: test_Overall - Behavioral
+-- Module Name: test_curveGenerator - Behavioral
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -23,13 +23,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity test_Overall is
+entity test_curveGenerator is
 --  Port ( );
-end test_Overall;
+end test_curveGenerator;
 
-architecture Behavioral of test_Overall is
+architecture Behavioral of test_curveGenerator is
                 
-component boardTop is
+component curveGenerator is
     Port ( 
             ssegAnode : out  STD_LOGIC_VECTOR (7 downto 0);
            ssegCathode : out  STD_LOGIC_VECTOR (7 downto 0);
@@ -51,7 +51,7 @@ component boardTop is
     
 end component;  
     
-    --Replicated boardTop signals 
+    --Replicated curveGenerator signals 
     signal clk100mhz : std_logic := '0';
     signal slideSwitches : std_logic_vector(15 downto 0) := X"0000";
     signal pushButtons : std_logic_vector(4 downto 0) := "00000"; 
@@ -73,21 +73,7 @@ begin
     --Simulation additions
     clk100mhz <= not clk100mhz after 10ps;
     
-    inputs : process begin
-        wait for 2us;
-        slideSwitches <= X"0001";
-        wait for 2us;
-        slideSwitches <= X"0002";
-        wait for 2us;
-        slideSwitches <= X"0003";
-        wait for 2us;
-        slideSwitches <= X"0002";
-        wait for 2us;
-        slideSwitches <= X"0003";                                
-        wait;
-    end process;
-    
-    board : boardTop port map (
+    board : curveGenerator port map (
         ssegAnode => ssegAnode,
         ssegCathode => ssegCathode,
         slideSwitches => slideSwitches,
