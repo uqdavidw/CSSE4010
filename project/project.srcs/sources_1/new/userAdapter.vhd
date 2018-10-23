@@ -78,7 +78,8 @@ architecture Behavioral of userAdapter is
         digit5_p : in std_logic_vector(3 downto 0) := "0000";
         digit6_p : in std_logic_vector(3 downto 0) := "0000";
         digit7_p : in std_logic_vector(3 downto 0) := "0000";
-        digit8_p : in std_logic_vector(3 downto 0) := "0000"
+        digit8_p : in std_logic_vector(3 downto 0) := "0000";
+        dots : in std_logic_vector(7 downto 0) := X"FF"
     ); 
     end component;
     
@@ -103,34 +104,22 @@ architecture Behavioral of userAdapter is
     signal downFlagFSM : std_logic := '0';
 
     --Output signals
-    signal xOffsetMode : std_logic_vector(7 downto 0) := X"00";
-    signal yOffsetMode : std_logic_vector(7 downto 0) := X"00";
-    signal xFrequencyMode : std_logic_vector(7 downto 0) := X"01";
-    signal yFrequencyMode : std_logic_vector(7 downto 0) := X"01";
+    signal xOffsetMode, yOffsetMode : std_logic_vector(7 downto 0) := X"00";
+    signal xFrequencyMode, yFrequencyMode : std_logic_vector(7 downto 0) := X"01";
     
     --sseg signals
     signal scaledClk : std_logic := '0';
-    signal sseg0 : std_logic_vector(3 downto 0) := X"0";
-    signal sseg1 : std_logic_vector(3 downto 0) := X"0";
-    signal sseg2 : std_logic_vector(3 downto 0) := X"0";
-    signal sseg3 : std_logic_vector(3 downto 0) := X"0";
-    signal sseg4 : std_logic_vector(3 downto 0) := X"0";
-    signal sseg5 : std_logic_vector(3 downto 0) := X"0";
-    signal sseg6 : std_logic_vector(3 downto 0) := X"0";
-    signal sseg7 : std_logic_vector(3 downto 0) := X"0";    
+    signal sseg0, sseg1, sseg2, sseg3, sseg4, sseg5, sseg6, sseg7 : std_logic_vector(3 downto 0) := X"0";
     
-    signal leftSsegHex : std_logic_vector(7 downto 0);
-    signal rightSsegHex : std_logic_vector(7 downto 0);
+    --Hex to BCD conversion
+    signal leftSsegHex, rightSsegHex : std_logic_vector(7 downto 0);
+    signal sseg7dec, sseg6dec, sseg5dec, sseg4dec : std_logic_vector(7 downto 0); 
     
-    signal sseg7dec : std_logic_vector(7 downto 0);
-    signal sseg6dec : std_logic_vector(7 downto 0);
-    signal sseg5dec : std_logic_vector(7 downto 0);
-    signal sseg4dec : std_logic_vector(7 downto 0); 
+    --Decimal point signals
+    signal ssegDecimalPoints : std_logic_vector(7 downto 0) := X"00";
+    signal xOffsetDecimalPoint, yOffsetDecimalPoint : std_logic := '0';
     
-    signal bcdConverter1 : std_logic_vector(6 downto 0) := "0000000";
-    signal bcdConverter2 : std_logic_vector(6 downto 0) := "0000000";
-    signal bcdConverter3 : std_logic_vector(6 downto 0) := "0000000";
-    signal bcdConverter4 : std_logic_vector(6 downto 0) := "0000000";
+    signal xOffsetModeSigned, yOffsetModeSigned : std_logic_vector(7 downto 0);
     
 begin
     
@@ -152,7 +141,8 @@ begin
         digit5_p => sseg4,
         digit6_p => sseg5,
         digit7_p => sseg6,
-        digit8_p => sseg7
+        digit8_p => sseg7,
+        dots => ssegDecimalPoints
     );
 
     mode <= slideSwitches;
@@ -225,10 +215,14 @@ begin
     --Display mode on sseg0
     sseg0(1 downto 0) <= slideSwitches;
     --sseg0(3 downto 2) <= "00";
+ 
+    --Calculate absolute value of offset (64 is centre)   
+    xOffsetModeSigned <= std_logic_vector(64 - unsigned(xOffsetMode)) when (unsigned(xOffsetMode) < 64) else std_logic_vector(unsigned(xOffsetMode) - 64);
+    yOffsetModeSigned <= std_logic_vector(64 - unsigned(yOffsetMode)) when (unsigned(yOffsetMode) < 64) else std_logic_vector(unsigned(yOffsetMode) - 64);
     
     --Select sseg display based on mode      
-    leftSsegHex <= xOffsetMode when slideSwitches = "01" else xFrequencyMode;
-    rightSsegHex <= yOffsetMode when slideSwitches = "01" else yFrequencyMode;
+    leftSsegHex <= xOffsetModeSigned when slideSwitches = "01" else xFrequencyMode;
+    rightSsegHex <= yOffsetModeSigned when slideSwitches = "01" else yFrequencyMode;
      
     --Convert hex to dec
     sseg7dec <= std_logic_vector(unsigned(leftSsegHex) / 10);
@@ -240,7 +234,13 @@ begin
     sseg5 <= sseg5dec(3 downto 0);
     sseg4 <= sseg4dec(3 downto 0);
     
-    
+    --Decimal point
+    ssegDecimalPoints(7) <= xOffsetDecimalPoint;
+    ssegDecimalPoints(5) <= yOffsetDecimalPoint;   
+       
+    --Middle is 64
+    xOffsetDecimalPoint <= '1' when (slideSwitches = "01" and unsigned(xOffset) < 64) else '0';
+    yOffsetDecimalPoint <= '1' when (slideSwitches = "01" and unsigned(yOffset) < 64) else '0';    
        
     --Handle Left Button                     
     process(leftButton) begin

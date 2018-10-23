@@ -9,15 +9,16 @@ Port (
 	clk : in std_logic; --clock
 	rst : in std_logic;
 	cathode_p : out std_logic_vector(7 downto 0);
-	digit1_p : in std_logic_vector(3 downto 0) := "0000";
 	anode_p : out std_logic_vector(7 downto 0);
+	digit1_p : in std_logic_vector(3 downto 0) := "0000";
 	digit2_p : in std_logic_vector(3 downto 0) := "0000";
 	digit3_p : in std_logic_vector(3 downto 0) := "0000";
 	digit4_p : in std_logic_vector(3 downto 0) := "0000";
 	digit5_p : in std_logic_vector(3 downto 0) := "0000";
 	digit6_p : in std_logic_vector(3 downto 0) := "0000";
 	digit7_p : in std_logic_vector(3 downto 0) := "0000";
-	digit8_p : in std_logic_vector(3 downto 0) := "0000"
+	digit8_p : in std_logic_vector(3 downto 0) := "0000";
+	dots : in std_logic_vector(7 downto 0) := X"FF"
 ); end ssegDriver;
 
 ------------------------------------------------
@@ -108,25 +109,37 @@ architecture behavioural of ssegDriver is
 				end if;
 			end process;
 				
-			--Connect the Cathode values
+			--Connect the Cathode values for digit
 			with digitout_reg select
-			cathode_p <= "11000000"when "0000", 	-- 0 
-							"11111001" when "0001",	-- 1
-							"10100100" when "0010",		-- 2
-							"10110000" when "0011",		-- 3
-							"10011001" when "0100",		-- 4
-							"10010010" when "0101",		-- 5
-							"10000010" when "0110",		-- 6
-							"11111000" when "0111",		-- 7
-							"10000000" when "1000",		-- 8
-							"10011000" when "1001",		-- 9
-							"10001000" when "1010",		-- A
-							"10000011" when "1011",		-- B
-							"11000110" when "1100",		-- C
-							"10100001" when "1101",		-- D
-							"10000110" when "1110",		-- E
-							"10001110" when "1111",		-- F
-							"11111111" when others;
+			cathode_p(6 downto 0) <= "1000000"when "0000", 	-- 0 
+							         "1111001" when "0001",	-- 1
+							         "0100100" when "0010",		-- 2
+                                     "0110000" when "0011",		-- 3
+                                     "0011001" when "0100",		-- 4
+                                     "0010010" when "0101",		-- 5
+                                     "0000010" when "0110",		-- 6
+                                     "1111000" when "0111",		-- 7
+                                     "0000000" when "1000",		-- 8
+                                     "0011000" when "1001",		-- 9
+                                     "0001000" when "1010",		-- A
+                                     "0000011" when "1011",		-- B
+                                     "1000110" when "1100",		-- C
+                                     "0100001" when "1101",		-- D
+                                     "0000110" when "1110",		-- E
+                                     "0001110" when "1111",		-- F
+                                     "1111111" when others;
+		 
+		 --Connect the Anode values for digit
+		 with digit_sel select
+		 cathode_p(7) <= not dots(0) when "000",
+		                  not dots(1) when "001",
+		                  not dots(2) when "010",
+		                  not dots(3) when "011",
+		                  not dots(4) when "100",
+		                  not dots(5) when "101",
+		                  not dots(6) when "110",
+		                  not dots(7) when "111",
+		                  '1' when others;		                  
 		 
 		 --Connect the Anode values
 		 anode_p <= anode_reg;

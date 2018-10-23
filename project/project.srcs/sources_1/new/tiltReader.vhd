@@ -97,39 +97,23 @@ begin
     process(dataReady) begin
         if rising_edge(dataReady) then
             if(mode = "11") then  
-                if(unsigned(adjustedTilt) > 2200) then --Speed 3.05
-                    xFrequency <= X"3D";
-                    yFrequency <= X"14";
-                    displayDigit <= X"9";
-                elsif(unsigned(adjustedTilt) > 2100) then --Speed 3.045
-                    xFrequency <= X"43";
-                    yFrequency <= X"16";
-                    displayDigit <= X"8";
-                elsif(unsigned(adjustedTilt) > 2000) then --Speed 3.04
-                    xFrequency <= X"4C";
-                    yFrequency <= X"19";
-                    displayDigit <= X"7";        
-                elsif(unsigned(adjustedTilt) > 1900) then --Speed 3.035
-                    xFrequency <= X"55";
-                    yFrequency <= X"1C";
-                    displayDigit <= X"6";
-                elsif(unsigned(adjustedTilt) > 1800) then --Speed 3.03
+                if(unsigned(adjustedTilt) > 1700) then --Speed 3.03
                     xFrequency <= X"5B";
                     yFrequency <= X"1E";
                     displayDigit <= X"5";
-                elsif(unsigned(adjustedTilt) > 1700) then --Speed 3.025
+                elsif(unsigned(adjustedTilt) > 1600) then --Speed 3.025
                     xFrequency <= X"79";
                     yFrequency <= X"28";
                     displayDigit <= X"4";        
-                elsif(unsigned(adjustedTilt) > 1600) then --Speed 3.02
+                elsif(unsigned(adjustedTilt) > 1500) then --Speed 3.02
                     xFrequency <= X"97";
                     yFrequency <= X"32";
                     displayDigit <= X"3";                
-                elsif(unsigned(adjustedTilt) > 1500) then --Speed 3.015
+                elsif(unsigned(adjustedTilt) > 1400) then --Speed 3.015
                     xFrequency <= X"C7";
                     yFrequency <= X"42";
                     displayDigit <= X"2";        
-                elsif(unsigned(adjustedTilt) > 1400) then --Speed 3.01
+                elsif(unsigned(adjustedTilt) > 1300) then --Speed 3.01
                     xFrequency <= X"FD";
                     yFrequency <= X"54";
                     displayDigit <= X"1";           
