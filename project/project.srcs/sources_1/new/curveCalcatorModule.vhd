@@ -22,7 +22,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
+--use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity curveCalculatorModule is
@@ -71,15 +71,15 @@ architecture Behavioral of curveCalculatorModule is
             );
     end component;
 
-    component cordic_0 is 
-        Port ( 
+    COMPONENT cordic_0 IS
+        PORT (
             aclk : IN STD_LOGIC;
             s_axis_phase_tvalid : IN STD_LOGIC;
             s_axis_phase_tdata : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
             m_axis_dout_tvalid : OUT STD_LOGIC;
-            m_axis_dout_tdata : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+            m_axis_dout_tdata : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
         );
-    end component;
+    END COMPONENT;
 
     signal sendState : std_logic_vector(2 downto 0);
     signal receiveState : std_logic_vector(1 downto 0);
@@ -104,6 +104,14 @@ architecture Behavioral of curveCalculatorModule is
     signal outValid : std_logic;
     signal outData : std_logic_vector(15 downto 0);
     signal currentMode : std_logic_vector(1 downto 0) := "00";
+    
+    signal rawOut : std_logic_vector(31 downto 0);
+    signal rawSin : signed (15 downto 0);
+    signal rawCos : signed (15 downto 0);
+    
+    signal sinOut : std_logic_vector(7 downto 0);
+    signal cosOut : std_logic_vector(7 downto 0);
+
     
 begin
     busInterface : busSlave port map (
@@ -130,8 +138,19 @@ begin
         s_axis_phase_tvalid => inValid,
         s_axis_phase_tdata => inData,
         m_axis_dout_tvalid => outValid,
-        m_axis_dout_tdata => outData
+        m_axis_dout_tdata => rawOut
     );
+    
+    outData(15 downto 8) <= sinOut;
+    outData(7 downto 0) <= cosOut;
+    
+    rawSin <= signed(rawOut (31 downto 16)) + 16384;
+    rawCos <= signed(rawOut (15 downto 0)) + 16384;
+    
+    -- Handle -1 case
+    sinOut <= std_logic_vector(rawSin (14 downto 7)) when rawSin(15) = '0' else not std_logic_vector(rawSin (14 downto 7));
+    cosOut <= std_logic_vector(rawCos (14 downto 7)) when rawCos(15) = '0' else not std_logic_vector(rawCos (14 downto 7));    
+    
 
     --Handles sending messages
     sendValues : process(clk)
@@ -142,7 +161,7 @@ begin
                     --Waiting for update
                     when idle =>
                         if(updateFlag = '1') then
-                            inData <= X"0266";
+                            inData <= "1110000000000000";
                             inValid <= '1';
                             state <= calculate; 
                         end if;
@@ -150,15 +169,11 @@ begin
                     --Waiting for cordic to calculate value    
                     when calculate => 
                         if(outValid = '1') then
-                            toSendRegister(15) <= not outData(15);
-                            toSendRegister(14 downto 8) <= outData(14 downto 8);
-                            toSendRegister(7) <= not outData(7);
-                            toSendRegister(6 downto 0) <= outData(6 downto 0);
+                            toSendRegister <= outData;
                             toModuleRegister <= "100"; --BRAM module
                             
                             --Ensure you dont send termination by accident (0x0000)
-                            if(outData(15) = '1' and outData(14 downto 8) = "0000000" and 
-                                outData(7) = '1' and outData(6 downto 0) = "0000000") then 
+                            if(outData <= X"0000") then 
                                 toSendRegister <= "0000000100000001";
                             end if;
                             
@@ -177,13 +192,13 @@ begin
                     when send =>
                         if(ackLine = '1') then 
                             inValid <= '0';
-                            if(inData = X"058B") then
-                                inData <= X"0266";
+                            if(inData = "0010000000000000") then
+                                inData <= "1110000000000000";
                                 inValid <= '0';
                                 toSendRegister <= X"0000";
                                 state <= finishWait;
                             else
-                                inData <= inData + '1';
+                                inData <= inData + X"0010";
                                 state <= repeat;
                             end if;
                         end if; 
@@ -212,7 +227,6 @@ begin
                     when holdFinished =>
                         if outValid = '0' then 
                             state <= idle;
-                            updateFlag <= '1'; --DELETE THIS
                         end if;       
                                                
                     
