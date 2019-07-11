@@ -33,7 +33,7 @@ end clockScaler;
 
 architecture Behavioral of clockScaler is
 
-	constant scaleWidth : integer := 15;
+	constant scaleWidth : integer := 10;
 	signal clockScaler : std_logic_vector(scaleWidth downto 0);
 
 begin

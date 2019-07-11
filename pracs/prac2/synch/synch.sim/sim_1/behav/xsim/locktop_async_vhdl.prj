@@ -1,7 +1,0 @@
-# compile vhdl design source files
-vhdl xil_defaultlib  \
-"../../../../synch.srcs/sources_1/new/Controller.vhd" \
-"../../../../synch.srcs/sources_1/new/locktop_async.vhd" \
-
-# Do not sort compile order
-nosort

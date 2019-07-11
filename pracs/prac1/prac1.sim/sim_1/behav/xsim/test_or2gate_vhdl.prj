@@ -1,7 +1,0 @@
-# compile vhdl design source files
-vhdl xil_defaultlib  \
-"../../../../prac1.srcs/sources_1/new/or2gate.vhd" \
-"../../../../prac1.srcs/sim_1/new/test_or2gate.vhd" \
-
-# Do not sort compile order
-nosort
